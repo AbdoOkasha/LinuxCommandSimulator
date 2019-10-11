@@ -12,8 +12,8 @@ public class parser {
 
     public boolean parse(String input){
     	for(int i=0;i<input.length();++i) {
-        	if(input.charAt(i)=='>') {
-        		input=input.substring(0,i)+" > "+input.substring(i+1,input.length());
+        	if(input.charAt(i)=='>' ||input.charAt(i)=='|') {
+        		input=input.substring(0,i)+" "+input.charAt(i)+" "+input.substring(i+1,input.length());
         		i++;
         	}
     	}
@@ -33,27 +33,28 @@ public class parser {
     }
 
     private boolean validateCmd() {
+    	int numberOfArgs=numberOfArquments();
         switch (this.cmd){
             case "cat":
             case "rmdir":
             case "mv":
             case "rm":
-                return numberOfArquments() != 0;
+                return numberOfArgs != 0;
             case "cp":
-                return numberOfArquments() == 2;
+                return numberOfArgs == 2;
             case "cd":
             case "mkdir":
             case "args":
-                return numberOfArquments() == 1;
+                return numberOfArgs == 1;
             case "date":
-                return numberOfArquments() <= 1;
+                return numberOfArgs <= 1;
             case "ls":
             case "more":
             case "help":
             case "pwd":
             case "clear":
             case "exit":
-                return numberOfArquments() >= 0;
+                return numberOfArgs >= 0;
             default:
                 this.args = null;
                 this.cmd = null;
@@ -109,14 +110,16 @@ public class parser {
 //        if(res==true) System.out.println("1");
 //        else System.out.println("0");
 //        
-        String input=">a>s>A>s>";
-        for(int i=0;i < input.length();i++) {
-        	if(input.charAt(i)=='>') {
-        		input=input.substring(0,i)+" > "+input.substring(i+1,input.length());
-        		i++;
-        	}
-        	System.out.println(i);
-        }
-        System.out.println(input);
+//        String input=">a>s|A>s>";
+//        for(int i=0;i < input.length();i++) {
+//        	if(input.charAt(i)=='|') {
+//        		input=input.substring(0,i)+" | "+input.substring(i+1,input.length());
+//        		i++;
+//        	}
+//        	System.out.println(i);
+//        }
+//        System.out.println(input);
+    	
     }
+    	
 }

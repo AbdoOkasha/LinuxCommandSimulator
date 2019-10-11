@@ -164,8 +164,8 @@ public class terminal {
     public String rm(String source){
     	File args=new File(source);
         if (args == null) return null;
-           if(args.isDirectory()) this.rm(args.listFiles());
-           args.delete();
+       if(args.isDirectory()) this.rm(args.listFiles());
+       args.delete();
    
         return null;
     }
