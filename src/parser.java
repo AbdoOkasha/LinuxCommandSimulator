@@ -13,25 +13,25 @@ public class parser {
     public boolean parse(String input){
         input = input.trim().replaceAll(" +", " ");
         String[] temp = input.split(" ");
-        int arrayLen = temp.length-1;
+        int argsLen = temp.length-1;
         this.cmd = temp[0];
 
-        this.args = new String[(arrayLen <= 0)? 1 : arrayLen];
+        this.args = new String[(argsLen <= 0)? 1 : argsLen];
 
-        for(int i = 0 ; i < arrayLen ; ++i)
+        for(int i = 0 ; i < argsLen ; ++i)
             this.args[i] = temp[i+1];
 
-        System.out.println(validateCmd());
-
-        return validateCmd() && validateArgs();
+        return validateCmd() && validateArgs(argsLen);
     }
 
-    private boolean validateArgs() {
-//        int argsLen = this.args.length;
-//        for(int i = 0 ; i < argsLen ; ++i){
-//            File tester = new File(args[i]);
-//            if(tester.isDirectory() || tester.isFile() || (args[i].compareTo(">") == 0) || (args[i].compareTo(">>") == 0))
-//        }
+    private boolean validateArgs(int argsLen) {
+
+        for(int i = 0 ; i < argsLen ; ++i){
+            File tester = new File(args[i]);
+            if(!tester.isDirectory() && !tester.isFile() && !(args[i].compareTo(">") == 0) && !(args[i].compareTo(">>") == 0) && !(args[i].compareTo("|") == 0) && !(args[i].compareTo("more") == 0)){
+                return false;
+            }
+        }
         return true;
     }
 
@@ -67,6 +67,6 @@ public class parser {
 
     public static void main(String[] args) {
         parser p = new parser();
-        p.parse("cd");
+        p.parse("cd D:\\LinuxCommandSimulator");
     }
 }
