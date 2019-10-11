@@ -1,14 +1,18 @@
 import javax.swing.filechooser.FileSystemView;
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
+import java.util.stream.Stream;
 
 
 public class terminal {
@@ -30,6 +34,11 @@ public class terminal {
         File[] roots = fsv.getRoots();
         for (int i = 0; i < roots.length; i++) {
             root += roots[i].toString();
+        }
+        if(cmd=="ls") {
+        	if(Stream.of(args).anyMatch(x->x==">") == true) {
+        		
+        	}
         }
     }
 
@@ -171,7 +180,6 @@ public class terminal {
 	    return null;
 	   }
 
-	
 	public String date() {
 		return java.time.LocalDate.now().toString();
 	}
@@ -193,4 +201,11 @@ public class terminal {
 		return text;
 	}
 
+	public void writeToFile(String input, String fileName) throws IOException {
+	    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+	    writer.write(input);
+		
+	    writer.close();
+	}
+	
 }

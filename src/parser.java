@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 public class parser {
     private String[] args;
@@ -10,6 +11,13 @@ public class parser {
     }
 
     public boolean parse(String input){
+    	for(int i=0;i<input.length();++i) {
+        	if(input.charAt(i)=='>') {
+        		input=input.substring(0,i)+" > "+input.substring(i+1,input.length());
+        		i++;
+        	}
+    	}
+    	
         input = input.trim().replaceAll(" +", " ");
         String[] temp = input.split(" ");
 
@@ -95,7 +103,20 @@ public class parser {
 
     public static void main(String[] args) throws IOException {
         //System.out.println(System.getProperty("user.dir")); to get the current directory
-        parser p = new parser();
-
+//        parser p = new parser();
+//        String aa[]= {"<abc",">","cde"};
+//        boolean res =Stream.of(aa).anyMatch(x-> x=="<");
+//        if(res==true) System.out.println("1");
+//        else System.out.println("0");
+//        
+        String input=">a>s>A>s>";
+        for(int i=0;i < input.length();i++) {
+        	if(input.charAt(i)=='>') {
+        		input=input.substring(0,i)+" > "+input.substring(i+1,input.length());
+        		i++;
+        	}
+        	System.out.println(i);
+        }
+        System.out.println(input);
     }
 }
