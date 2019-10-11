@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Date;
 import java.util.Vector;
 
 
@@ -133,5 +134,10 @@ public class terminal {
 
     public void exit(){
         System.exit(0);
+    }
+
+    public void date(){
+        Date date = new Date();
+        System.out.println(date);
     }
 }
