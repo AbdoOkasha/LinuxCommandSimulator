@@ -33,15 +33,7 @@ public class terminal {
         }
     }
 
-    public void cp(String Source, String Dest) throws IOException {   // cp stands for copy file channel faster than java stream
-//		InputStream is= new FileInputStream(Source);
-//		OutputStream os= new FileOutputStream(Dest);
-//
-//		byte transRate[]=new byte[1024];
-//		int length;
-//		while((length=is.read(transRate))>0) {
-//			os.write(transRate,0,length);
-//		}
+    public String cp(String Source, String Dest) throws IOException {   // cp stands for copy file channel faster than java stream
 
         FileChannel inputStream = new FileInputStream(Source).getChannel();
         FileChannel otuputStream = new FileOutputStream(Dest).getChannel();
@@ -50,15 +42,18 @@ public class terminal {
 
         inputStream.close();
         otuputStream.close();
+        return null;
 
     }
 
-    public void cd(String Dest) {   //cd stands for change directory
+    public String cd(String Dest) {   //cd stands for change directory
         directory = Dest;
+        return null;
     }
 
-    public void cd() {
+    public String cd() {
         directory = root;
+         return null;
     }
 
     public Vector ls() {
@@ -74,7 +69,7 @@ public class terminal {
         return directory;
     }
 
-    public void mv(String source, String dest) throws IOException {    //move source to dest
+    public String mv(String source, String dest) throws IOException {    //move source to dest
         File check = new File(dest);
         if (check.isFile()) {
             Vector files = new Vector();
@@ -95,10 +90,10 @@ public class terminal {
             cp(source, dest);
             rm(source);
         }
-
+        return null;
     }
 
-    public void mkdir(String[] args) {
+    public String mkdir(String[] args) {
         int argsLen = args.length;
         for (int i = 0; i < argsLen; ++i) {
             File directory = new File(args[i]);
@@ -115,10 +110,10 @@ public class terminal {
                 break;
             }
         }
+        return null;
     }
 
-    
-    public void mkdir(String args) {
+    public String mkdir(String args) {
     	
             File directory = new File(args);
             if (!directory.exists()) {
@@ -132,9 +127,8 @@ public class terminal {
                 System.out.println('\'' + directory.getPath() + '\'' + " already exists");
 
             }
-        }
-    
-    
+            return null;
+    }
     
     public String rmdir(String[] args) {
         int argsLen = args.length;
@@ -158,7 +152,6 @@ public class terminal {
         return null;
     }
     
-    
     public String rm(String source){
     	File args=new File(source);
         if (args == null) return null;
@@ -167,15 +160,15 @@ public class terminal {
    
         return null;
     }
-
     
     public void exit(){
         System.exit(0);
     }
 
-	public void cls() {  
+	public String cls() {  
 	    System.out.print("\033[H\033[2J");  
 	    System.out.flush();  
+	    return null;
 	   }
 
 	
@@ -198,7 +191,6 @@ public class terminal {
 			text+=is.toString();
 		}
 		return text;
-		
 	}
 
 }
