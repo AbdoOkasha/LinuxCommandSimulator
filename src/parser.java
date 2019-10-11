@@ -1,6 +1,5 @@
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 public class parser {
     private String[] args;
@@ -11,55 +10,42 @@ public class parser {
     }
 
     public boolean parse(String input){
-        input = input.trim().replaceAll(" +", " "); //remove leading , last spaces and replace 2 or more spaces with one space
+        input = input.trim().replaceAll(" +", " ");
         String[] temp = input.split(" ");
 
         int argsLen = temp.length-1;
         this.cmd = temp[0];
 
-        this.args = new String[(argsLen <= 0)? 1 : argsLen];
+        this.args = (argsLen <= 0)? null : new String[argsLen];
 
         for(int i = 0 ; i < argsLen ; ++i)
             this.args[i] = temp[i+1];
 
-        return validateCmd() && validateArgs(argsLen);
-    }
-
-    private boolean validateArgs(int argsLen) {
-        for(int i = 0 ; i < argsLen ; ++i){
-            File tester = new File(args[i]);
-            if(!tester.isDirectory() &&
-                    !tester.isFile() &&
-                    (args[i].compareTo(">") != 0) &&
-                    (args[i].compareTo(">>") != 0) &&
-                    (args[i].compareTo("|") != 0) &&
-                    (args[i].compareTo("more") != 0)) {
-
-                this.args = null;
-                this.cmd = null;
-                return false;
-            }
-        }
-        return true;
+        return this.validateCmd() && this.validateArgs(argsLen);
     }
 
     private boolean validateCmd() {
         switch (this.cmd){
-            case "cd":
-            case "ls":
-            case "cp":
             case "cat":
-            case "more":
-            case "mkdir":
             case "rmdir":
             case "mv":
             case "rm":
+                return numberOfArquments() != 0;
+            case "cp":
+                return numberOfArquments() == 2;
+            case "cd":
+            case "mkdir":
             case "args":
+                return numberOfArquments() == 1;
             case "date":
+                return numberOfArquments() <= 1;
+            case "ls":
+            case "more":
             case "help":
             case "pwd":
             case "clear":
-                return true;
+            case "exit":
+                return numberOfArquments() >= 0;
             default:
                 this.args = null;
                 this.cmd = null;
@@ -75,10 +61,41 @@ public class parser {
         return this.args;
     }
 
-    public static void main(String[] args) {
+    private boolean validateArgs(int argsLen) {
+        for(int i = 0 ; i < argsLen ; ++i){
+            File tester = new File(this.args[i]);
+            if(!tester.isDirectory() &&
+                    !tester.isFile() &&
+                    !(this.args[i].compareTo(">") == 0) &&
+                    !(this.args[i].compareTo(">>") == 0) &&
+                    !(this.args[i].compareTo("|") == 0) &&
+                    !(this.args[i].compareTo("more") == 0)) {
+
+                this.args = null;
+                this.cmd = null;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int numberOfArquments(){
+        int argsLen = this.args.length;
+        int numberOfArgs = 0;
+        for(int i = 0 ; i < argsLen ; ++i){
+            if((this.args[i].compareTo(">") == 0) ||
+                    (this.args[i].compareTo(">>") == 0) ||
+                    (this.args[i].compareTo("|") == 0))
+                break;
+
+            ++numberOfArgs;
+        }
+        return numberOfArgs;
+    }
+
+    public static void main(String[] args) throws IOException {
         //System.out.println(System.getProperty("user.dir")); to get the current directory
         parser p = new parser();
-        System.out.println(p.parse("cd"));
-        System.out.println(p.getCmd());
+
     }
 }
