@@ -13,6 +13,7 @@ public class parser {
     public boolean parse(String input){
         input = input.trim().replaceAll(" +", " ");
         String[] temp = input.split(" ");
+
         int argsLen = temp.length-1;
         this.cmd = temp[0];
 
@@ -25,10 +26,17 @@ public class parser {
     }
 
     private boolean validateArgs(int argsLen) {
-
         for(int i = 0 ; i < argsLen ; ++i){
             File tester = new File(args[i]);
-            if(!tester.isDirectory() && !tester.isFile() && !(args[i].compareTo(">") == 0) && !(args[i].compareTo(">>") == 0) && !(args[i].compareTo("|") == 0) && !(args[i].compareTo("more") == 0)){
+            if(!tester.isDirectory() &&
+                    !tester.isFile() &&
+                    !(args[i].compareTo(">") == 0) &&
+                    !(args[i].compareTo(">>") == 0) &&
+                    !(args[i].compareTo("|") == 0) &&
+                    !(args[i].compareTo("more") == 0)) {
+
+                this.args = null;
+                this.cmd = null;
                 return false;
             }
         }
@@ -53,6 +61,8 @@ public class parser {
             case "clear":
                 return true;
             default:
+                this.args = null;
+                this.cmd = null;
                 return false;
         }
     }
@@ -66,7 +76,9 @@ public class parser {
     }
 
     public static void main(String[] args) {
+        //System.out.println(System.getProperty("user.dir")); to get the current directory
         parser p = new parser();
-        p.parse("cd D:\\LinuxCommandSimulator");
+        System.out.println(p.parse(">"));
+        System.out.println(p.getCmd());
     }
 }
