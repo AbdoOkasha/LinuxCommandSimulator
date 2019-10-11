@@ -26,7 +26,6 @@ public class terminal {
         /*
          * get the root name*/
         FileSystemView fsv = FileSystemView.getFileSystemView();
-        File[] files = File.listRoots();
 
         File[] roots = fsv.getRoots();
         for (int i = 0; i < roots.length; i++) {
@@ -83,15 +82,18 @@ public class terminal {
             if (files.contains(check)) {
                 if (files.contains(dest)) {
                     cp(source, dest);
-                    //TODO rm(source);
-                } else {
-                    //TODO rename(source,dest);
+                    rm(source);
+                } 
+                else {
+                	File oldFile = new File(source);
+                	File newFile = new File (dest);
+                	oldFile.renameTo(newFile);
                 }
             }
         } else if (check.isDirectory()) {
-            //TODO mkdir(dest,source);
+            mkdir(dest);
             cp(source, dest);
-            //TODO rm(source);
+            rm(source);
         }
 
     }
@@ -115,7 +117,26 @@ public class terminal {
         }
     }
 
-    public void rmdir(String[] args) {
+    
+    public void mkdir(String args) {
+    	
+            File directory = new File(args);
+            if (!directory.exists()) {
+                if (!directory.mkdir()){
+                    System.out.println("A file name can not contain any of the following characters \n" + "\\ / : * < > |");
+                }
+            } else if (directory.isFile()) {
+                System.out.println('\'' + directory.getPath() + '\'' + " is not a Directory");
+                
+            } else if (directory.exists()) {
+                System.out.println('\'' + directory.getPath() + '\'' + " already exists");
+
+            }
+        }
+    
+    
+    
+    public String rmdir(String[] args) {
         int argsLen = args.length;
         for(int i= 0 ; i < argsLen ; ++i){
             File Directory = new File(args[i]);
@@ -124,17 +145,30 @@ public class terminal {
             else
                 Directory.delete();
         }
+        return null;
     }
 
-    public void rm(File[] args){
-        if (args == null)return;
+    public String rm(File[] args){
+        if (args == null) return null;
         int argsLen = args.length;
         for(int i = 0 ; i < argsLen ; ++i){
-            if(args[i].isDirectory())this.rm(args[i].listFiles());
+            if(args[i].isDirectory()) this.rm(args[i].listFiles());
             args[i].delete();
         }
+        return null;
+    }
+    
+    
+    public String rm(String source){
+    	File args=new File(source);
+        if (args == null) return null;
+           if(args.isDirectory()) this.rm(args.listFiles());
+           args.delete();
+   
+        return null;
     }
 
+    
     public void exit(){
         System.exit(0);
     }
