@@ -95,6 +95,34 @@ public class Terminal {
 		
 	}
 	
-	
+	public void mkdir(String[] args){
+		int argsLen = args.length;
+		for(int i = 0 ; i < argsLen ; ++i){
+			File directory = new File(args[i]);
+			if (!directory.exists()) {
+				if (!directory.mkdir()) {
+					System.out.println("A file name can not contain any of the following characters \n" + "\\ / : * < > |");
+					break;
+				}
+			}
+			else if (directory.isFile()) {
+				System.out.println('\'' + directory.getPath() + '\'' + " is not a Directory");
+				break;
+			}
+			else if (directory.exists()) {
+				System.out.println('\'' + directory.getPath() + '\'' + " already exists");
+				break;
+			}
+		}
+	}
+
+	public void rmdir(String[] args){
+		File Directory = new File();
+		if (Directory.listFiles().length > 0)
+			System.out.println('\'' + Directory.getPath() + '\'' + " not empty");
+		else
+            Directory.delete();
+
+	}
 
 }
