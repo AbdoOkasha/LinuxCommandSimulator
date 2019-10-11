@@ -40,13 +40,13 @@ public class terminal {
 //			os.write(transRate,0,length);
 //		}
 
-        FileChannel is = new FileInputStream(Source).getChannel();
-        FileChannel os = new FileOutputStream(Dest).getChannel();
+        FileChannel inputStream = new FileInputStream(Source).getChannel();
+        FileChannel otuputStream = new FileOutputStream(Dest).getChannel();
 
-        os.transferFrom(is, 0, is.size());
+        otuputStream.transferFrom(inputStream, 0, inputStream.size());
 
-        is.close();
-        os.close();
+        inputStream.close();
+        otuputStream.close();
 
     }
 
@@ -121,5 +121,4 @@ public class terminal {
                 Directory.delete();
         }
     }
-
 }
