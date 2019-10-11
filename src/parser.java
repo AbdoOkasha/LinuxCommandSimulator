@@ -11,7 +11,7 @@ public class parser {
     }
 
     public boolean parse(String input){
-        input = input.trim().replaceAll(" +", " ");
+        input = input.trim().replaceAll(" +", " "); //remove leading , last spaces and replace 2 or more spaces with one space
         String[] temp = input.split(" ");
 
         int argsLen = temp.length-1;
@@ -30,10 +30,10 @@ public class parser {
             File tester = new File(args[i]);
             if(!tester.isDirectory() &&
                     !tester.isFile() &&
-                    !(args[i].compareTo(">") == 0) &&
-                    !(args[i].compareTo(">>") == 0) &&
-                    !(args[i].compareTo("|") == 0) &&
-                    !(args[i].compareTo("more") == 0)) {
+                    (args[i].compareTo(">") != 0) &&
+                    (args[i].compareTo(">>") != 0) &&
+                    (args[i].compareTo("|") != 0) &&
+                    (args[i].compareTo("more") != 0)) {
 
                 this.args = null;
                 this.cmd = null;
@@ -78,7 +78,7 @@ public class parser {
     public static void main(String[] args) {
         //System.out.println(System.getProperty("user.dir")); to get the current directory
         parser p = new parser();
-        System.out.println(p.parse(">"));
+        System.out.println(p.parse("cd"));
         System.out.println(p.getCmd());
     }
 }
