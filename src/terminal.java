@@ -121,4 +121,17 @@ public class terminal {
                 Directory.delete();
         }
     }
+
+    public void rm(File[] args){
+        if (args == null)return;
+        int argsLen = args.length;
+        for(int i = 0 ; i < argsLen ; ++i){
+            if(args[i].isDirectory())this.rm(args[i].listFiles());
+            args[i].delete();
+        }
+    }
+
+    public void exit(){
+        System.exit(0);
+    }
 }
