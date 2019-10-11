@@ -136,8 +136,32 @@ public class terminal {
         System.exit(0);
     }
 
-    public void date(){
-        Date date = new Date();
-        System.out.println(date);
-    }
+	public void cls() {  
+	    System.out.print("\033[H\033[2J");  
+	    System.out.flush();  
+	   }
+
+	
+	public String date() {
+		return java.time.LocalDate.now().toString();
+	}
+	
+	public String date(String Format) {
+		SimpleDateFormat formatter = new SimpleDateFormat(Format);  
+	    Date date = new Date();  
+	    return formatter.format(date);  
+		
+	}
+	
+	public String cat(String[] paths) throws FileNotFoundException {
+		InputStream is;
+		String text=null;
+		for(int i=0;i<paths.length;++i) {
+			is=new FileInputStream(paths[i]);
+			text+=is.toString();
+		}
+		return text;
+		
+	}
+
 }
