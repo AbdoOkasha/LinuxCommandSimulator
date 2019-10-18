@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -283,11 +284,18 @@ public class terminal {
 		return java.time.LocalDate.now().toString();
 	}
 	
-	public String date(String Format) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
-		SimpleDateFormat formatter = new SimpleDateFormat(Format);  
-	    Date date = new Date();  
-	    return formatter.format(date);  
+	public String date(String format) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
+		Calendar cal = Calendar.getInstance(); 
+		int month=Integer.parseInt(format.substring(0,2));
+		int	day=Integer.parseInt(format.substring(2,4));
+		int hour=Integer.parseInt(format.substring(4,6));
+		int	mn=Integer.parseInt(format.substring(6,8));
+		int	year=Integer.parseInt(format.substring(8,12));
+		int	sec=Integer.parseInt(format.substring(12,14));
 		
+		cal.set(year, month, day, hour, mn, sec);
+		
+		return null;
 	}
 	
 	public String cat(String[] paths) throws FileNotFoundException {
