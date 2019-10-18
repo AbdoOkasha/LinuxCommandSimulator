@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.Vector;
-import java.util.stream.Stream;
+import java.util.Scanner;
 
 
 public class terminal {
@@ -21,7 +21,7 @@ public class terminal {
     private String directory;
     private String root;
 
-    terminal(String input) {
+    terminal(String input) throws IOException {
         parser p = new parser();
         p.parse(input);
         cmd = p.getCmd();
@@ -35,22 +35,114 @@ public class terminal {
         for (int i = 0; i < roots.length; i++) {
             root += roots[i].toString();
         }
-        if(cmd=="ls") {
-        	if(Stream.of(args).anyMatch(x->x==">") == true) {
-        		
+        String[] lastOut=null;
+        int lastCom=0;
+        
+        int flag=-1;
+        
+        for(int i=0;i<args.length;++i) {
+        	if(args[i].equals(">>") || args[i].equals(">") || args[i].equals("|") ) {
+        		flag=i;
+        		break;
         	}
         }
+        
+        if(flag!=-1) {
+	        String tmp[]=Arrays.copyOfRange(args, 0, flag-1);
+	        lastOut=command(cmd,tmp);
+        }
+        else lastOut=command(cmd,args);
+        
+        for(int i=0;i<args.length;++i) {
+        	if(args[i].equals(">") || args[i].equals(">>")) {
+        		if(i>args.length -2) {
+        			if(args[i+2].equals(">") || args[i+2].equals(">>")) {
+        				mkFile(args[i+1]);
+        			}
+        			else {
+        				mkFile(args[i+1]);
+        				writeToFile(lastOut,args[i+1],args[i].equals(">>"));
+        				lastOut=null;
+        			}
+        		}
+        	}
+        	else if(args[i].equals("|")) {
+        		if(lastCom!=0) 
+	        		lastOut=command(args[lastCom],lastOut);
+	        		
+        		else 
+        			lastOut=command(cmd,lastOut);
+        		
+        		lastCom=+1;
+        	}
+        	
+        }
+        
+    }
+    
+    public String[] command(String com,String arg) {
+    	
+    	
+    	return null;
     }
 
-    public String cp(String Source, String Dest) throws IOException {   // cp stands for copy file channel faster than java stream
+    public String[] command(String com,String[] arg) {
+    	
+    	
+    	return null;
+    }
+    
+    public String cp(String[] paths) throws IOException {   // cp stands for copy file channel faster than java stream
 
-        FileChannel inputStream = new FileInputStream(Source).getChannel();
-        FileChannel otuputStream = new FileOutputStream(Dest).getChannel();
-
-        otuputStream.transferFrom(inputStream, 0, inputStream.size());
-
-        inputStream.close();
-        otuputStream.close();
+    	if(paths.length>2) {
+    		File check = new File(paths[paths.length-1]);
+    		if(!check.isDirectory()) return null;
+    		else if(!check.exists()) {
+    			mkdir(paths[paths.length-1]);
+    		}
+    		
+    		for(int i=0;i<paths.length-1;++i) {
+    			String name="";
+				name=getFileName(paths[i]);
+				name = paths[paths.length-1]+name;
+    			
+				File make= new File(name);
+				make.createNewFile();
+				
+				FileChannel source = new FileInputStream(paths[i]).getChannel();
+				FileChannel dest = new FileOutputStream(name).getChannel();
+				
+				dest.transferFrom(source, 0, source.size());
+				
+				source.close();
+				dest.close();
+	        }
+    	}
+    	
+    	else {
+    		File file= new File(paths[0]);
+    		Scanner sc = new Scanner(file);
+    		File check = new File(paths[1]);
+    		
+    		if(check.isDirectory()) {
+    			String newPath=paths[1]+getFileName(paths[0]);
+    			mkFile(newPath);
+    			paths[1]=newPath;
+    		}
+    		else if(!check.isFile()) { //check if not created
+    			mkFile(paths[1]);
+    		}
+    		
+    		BufferedWriter out= new BufferedWriter(new FileWriter(paths[1],false)); //true for append
+    		while(sc.hasNextLine()) {
+    			String in = sc.nextLine();
+    			out.write(in);
+    			out.newLine();
+    		}
+    		sc.close();
+    		out.close();
+    	}
+    	
         return null;
 
     }
@@ -65,40 +157,25 @@ public class terminal {
          return null;
     }
 
-    public Vector ls() {
+    public String[] ls() {
         File folders[] = new File(pwd()).listFiles();
-        Vector foldersName = new Vector();
-        for (File f : folders) {
-            foldersName.add(f.toString());
+        String [] names=new String[folders.length];
+        
+        for (int i=0;i<folders.length;++i) {
+        	names[i]=folders[i].toString();
         }
-        return foldersName;
+        return names;
     }
 
     public String pwd() {
         return directory;
     }
 
-    public String mv(String source, String dest) throws IOException {    //move source to dest
-        File check = new File(dest);
-        if (check.isFile()) {
-            Vector files = new Vector();
-            files = ls();
-            if (files.contains(check)) {
-                if (files.contains(dest)) {
-                    cp(source, dest);
-                    rm(source);
-                } 
-                else {
-                	File oldFile = new File(source);
-                	File newFile = new File (dest);
-                	oldFile.renameTo(newFile);
-                }
-            }
-        } else if (check.isDirectory()) {
-            mkdir(dest);
-            cp(source, dest);
-            rm(source);
-        }
+    public String mv(String paths[]) throws IOException {    //move source to dest
+    	cp(paths);
+    	for(int i=0;i<paths.length-1;++i) {
+    		rm(paths[i]);
+    	}
         return null;
     }
 
@@ -122,6 +199,13 @@ public class terminal {
         return null;
     }
 
+    public String mkFile(String path) throws IOException {
+    	File file = new File(path);
+    	if(!file.exists()) file.createNewFile();
+    	
+    	return null;
+    }
+    
     public String mkdir(String args) {
     	
             File directory = new File(args);
@@ -162,10 +246,26 @@ public class terminal {
     }
     
     public String rm(String source){
+    	if(source.charAt(0)=='*') {
+    		String compare=source.substring(1);
+    		String [] names=ls();
+    		for(int i=0;i<names.length;++i) {
+    			if(names[i].substring(names[i].length()-4,names[i].length()).equals(compare)) rm(names[i]);
+    		}
+    	}
+    	else if(source.charAt(source.length()-1)=='*') {
+    		String compare=source.substring(0,source.length()-1);
+    		String [] names=ls();
+    		for(int i=0;i<names.length;++i) {
+    			if(names[i].substring(0,names[i].length()-1).equals(compare)) rm(names[i]);
+    		}
+    		
+    	}
+    	
     	File args=new File(source);
         if (args == null) return null;
-       if(args.isDirectory()) this.rm(args.listFiles());
-       args.delete();
+        if(args.isDirectory()) this.rm(args.listFiles());
+        args.delete();
    
         return null;
     }
@@ -175,8 +275,7 @@ public class terminal {
     }
 
 	public String cls() {  
-	    System.out.print("\033[H\033[2J");  
-	    System.out.flush();  
+		for(int i=0;i<15;++i) System.out.println("");
 	    return null;
 	   }
 
@@ -184,7 +283,7 @@ public class terminal {
 		return java.time.LocalDate.now().toString();
 	}
 	
-	public String date(String Format) {
+	public String date(String Format) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
 		SimpleDateFormat formatter = new SimpleDateFormat(Format);  
 	    Date date = new Date();  
 	    return formatter.format(date);  
@@ -201,11 +300,20 @@ public class terminal {
 		return text;
 	}
 
-	public void writeToFile(String input, String fileName) throws IOException {
-	    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-	    writer.write(input);
+	public void writeToFile(String[] input, String fileName,boolean state) throws IOException {
+	    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName,state));  //true for append
+	    
+	    for(String i:input)
+	    	writer.write(i);
 		
 	    writer.close();
+	}
+	
+	public String getFileName(String name) {
+		for(int i=name.length()-1;i>0;++i) {
+			if(name.charAt(i)=='/') return name.substring(i+1);
+		}
+		return name;
 	}
 	
 }
