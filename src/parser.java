@@ -21,7 +21,13 @@ public class parser {
             this.args[i] = replaceStar(temp[i + 1]);
         }
 
-        return this.validateCommand() && this.checkNumberOfArgs();
+        if (this.validateCommand() && this.checkNumberOfArgs())
+            return true;
+        else {
+            this.args = null;
+            this.cmd = null;
+            return false;
+        }
     }
 
     private String reformat(String input) {
@@ -102,21 +108,21 @@ public class parser {
                     if (!isDirectory(this.args[i])) return false;
                     break;
                 case "mv":
-                    if (lastArgument)
+                    if (lastArgument) {
                         if (!isFile(this.args[i]) && !isDirectory(this.args[i]))
                             return false;
-                        else if (!isFile(this.args[i])) return false;
+                    } else if (!isFile(this.args[i])) return false;
                     break;
                 case "rm":
                     if (!isFile(this.args[i])) return false;
                     break;
                 case "cp":
-                    if (!isFile(this.args[i])) return false;
-                    else if (lastArgument)
-                        if (!isFile(this.args[i]))
+                    if (lastArgument) {
+                        if (!isFile(this.args[i])) {
                             if (!isDirectory(this.args[i]))
                                 return false;
-                            else this.args[i] += '/' + this.args[i - 1];
+                        }
+                    } else if (!isFile(this.args[i])) return false;
                     break;
                 case "cd":
                     if (!isDirectory(this.args[i])) return false;
@@ -185,8 +191,7 @@ public class parser {
                 }
                 operator = this.args[i];
                 counter = 0;
-            }
-            else if(i == (this.args.length - 1)){
+            } else if (i == (this.args.length - 1)) {
                 if (!numberOfArgsValid(operator, counter)) {
                     System.out.println("few argument for " + "\'" + operator + "\'");
                     return false;
