@@ -22,6 +22,7 @@ public class parser {
         for (int i = 0; i < argsLen; ++i) {
             this.args[i] = replaceStar(temp[i + 1]);
         }
+
         this.argsLen = argsLen - 1;
         if (this.validateCommand() && this.checkNumberOfArgs())
             return true;
@@ -216,6 +217,7 @@ public class parser {
             case "rmdir":
                 return (counter <= Integer.MAX_VALUE && counter > 1);
             case "mv":
+            	System.out.println(counter);
                 return (counter <= Integer.MAX_VALUE && counter > 1);
             case "rm":
                 return (counter <= Integer.MAX_VALUE && counter > 0);
@@ -230,7 +232,7 @@ public class parser {
             case "date":
                 return counter <= 1;
             case "ls":
-                return counter <= Integer.MAX_VALUE;
+                return (counter >= 0);
             case "more":
                 return counter == 0;
             case "help":
@@ -246,7 +248,7 @@ public class parser {
             case ">>":
                 return counter == 1;
             case "|":
-                return counter == 1;
+                return counter >= 0;
         }
         return false;
     }

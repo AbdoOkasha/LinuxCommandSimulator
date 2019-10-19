@@ -33,7 +33,7 @@ public class terminal {
         String gar[] = p.getArguments();
         if(gar!=null) for(String i:gar) args.add(i);
         
-//        System.out.println(cmd + " " + args);
+        System.out.println(cmd + " " + args);
         
         
         
@@ -49,7 +49,7 @@ public class terminal {
         	}
         }
         
-        if(flag!=-1) {
+        if(flag!=-1) {		//get the output of the first command save it in lastOut
         	if(flag !=0 ) {
         		Vector<String> tmp=new Vector<String>();
         		for(int i=0;i<flag;++i) tmp.add(args.get(i));
@@ -60,7 +60,8 @@ public class terminal {
         		lastOut=command(cmd,tmp);
         	}
         }
-        else {
+        
+        else {		// no operators found
         	if(args==null) {
         		Vector<String> call =null;
         		lastOut=command(cmd,call);
@@ -71,11 +72,11 @@ public class terminal {
         if(args!=null)
 	        for(int i=0;i<args.size();++i) {
 	        	if(args.get(i).equals(">") || args.get(i).equals(">>")) {
-	        		if(i<args.size() -3) {
-	        			if(args.get(i+2).equals(">") || args.get(i+2).equals(">>")) {
-	        				mkFile(args.get(i+1));
+	        		if(i<args.size() -3) {// check if it could be more operators  
+	        			if(args.get(i+2).equals(">") || args.get(i+2).equals(">>")) {//check if there more operators
+	        				mkFile(args.get(i+1));	
 	        			}
-	        			else {
+	        			else {	//it was the last operator write the output in lastOut in the file
 	        				mkFile(args.get(i+1));
 	        				String fileName=args.get(i+1);
 	        				File check= new File(fileName);
@@ -88,7 +89,7 @@ public class terminal {
 	        				lastOut=null;
 	        			}
 	        		}
-        			else {
+        			else { //last operator so save output in file
         				mkFile(args.get(i+1));
         				String fileName=args.get(i+1);
         				File check= new File(fileName);
@@ -100,7 +101,7 @@ public class terminal {
         				lastOut=null;
         			}
 	        	}
-	        	else if(args.get(i).equals("|")) {
+	        	else if(args.get(i).equals("|")) { //perform the command with its input = last output
 	        			lastOut=command(args.get(i+1),lastOut);
 	        			
 	        	}
@@ -262,13 +263,22 @@ public class terminal {
     			
 		    	String loc = pwd().get(0);
 		        folders= new File(loc).listFiles();
-		    	
+		    	if(folders!=null && folders.length>0 )
 		        for (int j=0;j<folders.length;++j) {
 		        	names.add(folders[j].toString());
 		        }
 		        names.add("\n\n");
     			
     		}
+    	}
+    	else {
+    		String loc = pwd().get(0);
+	        folders= new File(loc).listFiles();
+	    	if(folders!=null && folders.length>0 )
+	        for (int j=0;j<folders.length;++j) {
+        	names.add(folders[j].toString());
+        }
+    		
     	}
         cd(tmp);
         return names;
@@ -524,8 +534,7 @@ public class terminal {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		terminal t= new terminal("ls C:\\Users E:\\");
-		terminal b = new terminal("pwd");
+		terminal t= new terminal("mv a.txt b.txt");
 		
 		
 
