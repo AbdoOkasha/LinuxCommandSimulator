@@ -11,19 +11,20 @@ public class parser {
 
     public boolean parse(String input) throws IOException {
         input = this.reformat(input);
-        input = input.trim().replaceAll(" +", " ");
+        input = input.trim().replaceAll(" +", " ");		//replace multiple spaces with only 1
         String[] temp = input.split(" ");
         int argsLen = temp.length - 1;
         this.cmd = temp[0];
 
         this.args = (argsLen <= 0) ? null : new String[argsLen];
+        
         for (int i = 0; i < argsLen; ++i) {
             this.args[i] = replaceStar(temp[i + 1]);
         }
-
         if (this.validateCommand() && this.checkNumberOfArgs())
             return true;
         else {
+
             this.args = null;
             this.cmd = null;
             return false;
@@ -38,18 +39,22 @@ public class parser {
                 firstQuote = true;
                 input = input.substring(0, i) + input.substring(i + 1);
                 --inputLen;
-            } else if (input.charAt(i) == ' ' && firstQuote) {
-                input = input.substring(0, i) + "\"*\"" + input.substring(i + 1);
+            } 
+            else if (input.charAt(i) == ' ' && firstQuote) {
+                input = input.substring(0, i) + "\"*\"" + input.substring(i + 1); // replace space with "*" and remove quotes
                 inputLen += 2;
-            } else if (input.charAt(i) == '\"' && firstQuote) {
+            } 
+            else if (input.charAt(i) == '\"' && firstQuote) {
                 firstQuote = false;
                 input = input.substring(0, i) + input.substring(i + 1);
                 --inputLen;
-            } else if ((input.charAt(i) == '|')) {
+            } 
+            else if ((input.charAt(i) == '|')) {
                 input = input.substring(0, i) + " " + input.charAt(i) + " " + input.substring(i + 1);
                 ++i;
                 inputLen += 2;
-            } else if ((i + 1) <= (inputLen - 1) && (input.charAt(i) == '>') && (input.charAt(i + 1) == '>')) {
+            } 
+            else if ((i + 1) <= (inputLen - 1) && (input.charAt(i) == '>') && (input.charAt(i + 1) == '>')) {
                 input = input.substring(0, i) + " " + input.charAt(i) + input.charAt(i + 1) + " " + input.substring(i + 2);
                 i += 2;
                 inputLen += 2;
@@ -91,7 +96,7 @@ public class parser {
             if ((i == (argsLen - 1)) || (((i + 1) < argsLen) && (isOperator(this.args[i]))))
                 lastArgument = true;
             if (isOperator(this.args[i])) {
-                cmd = this.args[i];
+                cmd = this.args[i];		// u mean i+1 ? if so >>,> doesn't require command after it only | does
                 operator = this.args[i];
                 continue;
             } else if (isCommand(this.args[i])) {
@@ -101,7 +106,6 @@ public class parser {
             }
             switch (cmd) {
                 case "cat":
-                    System.out.println(this.args[i]);
                     if (!isFile(this.args[i])) return false;
                     break;
                 case "rmdir":
@@ -207,13 +211,13 @@ public class parser {
             case "cat":
                 return counter <= Integer.MAX_VALUE;
             case "rmdir":
-                return counter == 1;
+                return (counter <= Integer.MAX_VALUE && counter>1);
             case "mv":
-                return counter <= Integer.MAX_VALUE;
+                return (counter <= Integer.MAX_VALUE && counter>1);
             case "rm":
-                return counter <= Integer.MAX_VALUE;
+                return (counter <= Integer.MAX_VALUE && counter>0);
             case "cp":
-                return counter == 2;
+                return (counter <= Integer.MAX_VALUE && counter>1);
             case "cd":
                 return counter <= 1;
             case "mkdir":
@@ -229,7 +233,7 @@ public class parser {
             case "help":
                 return counter == 0;
             case "pwd":
-                return counter == 0;
+                return (counter <= Integer.MAX_VALUE && counter>1);
             case "clear":
                 return counter == 0;
             case "exit":
@@ -249,7 +253,8 @@ public class parser {
     }
 
     public String[] getArguments() {
-        return this.args;
+    	if(args==null) return null;
+        return args;
     }
 
     private boolean isDirectory(String directoryPath) {
@@ -269,7 +274,7 @@ public class parser {
         if (file.isFile()) return true;
         else if (!file.exists()) {
             createFile = file.createNewFile();
-            if (createFile) {
+            if (createFile){
                 file.delete();
                 return true;
             }
@@ -282,7 +287,7 @@ public class parser {
                 file.delete();
                 return true;
             }
-        } else if (lastIndexOf != -1)
+        } else if (lastIndexOf != -1)			//can't understand e.e
             if (filePath.charAt(lastIndexOf - 1) == '*')
                 return true;
         return false;
@@ -298,10 +303,10 @@ public class parser {
         return false;
     }
 
-    public static void main(String[] args) throws IOException {
-        //System.out.println(System.getProperty("user.dir")); to get the current directory
-        parser p = new parser();
-        System.out.println(p.parse("cp adham.txt khaled.txt pp.txt"));
-        System.out.println();
-    }
+//    public static void main(String[] args) throws IOException {
+//        //System.out.println(System.getProperty("user.dir")); to get the current directory
+//        parser p = new parser();
+//        System.out.println(p.parse("cp adham.txt khaled.txt pp.txt"));
+//        System.out.println();
+//    }
 }

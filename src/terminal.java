@@ -1,4 +1,7 @@
 import javax.swing.filechooser.FileSystemView;
+
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,16 +11,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Scanner;
+import java.util.Vector;
 
 
 public class terminal {
-    private String cmd;
-    private String[] args;
-    private String directory="F:\\";
-    private String root;
+    private String cmd=null;
+    private Vector<String> args=new Vector<String>();
+    private String directory=null;
+    private String root=null;
 
     terminal (){
     	
@@ -27,91 +30,174 @@ public class terminal {
         parser p = new parser();
         p.parse(input);
         cmd = p.getCmd();
-        args = p.getArguments().clone();
+        String gar[] = p.getArguments();
+        if(gar!=null) for(String i:gar) args.add(i);
 
         /*
          * get the root name*/
         FileSystemView fsv = FileSystemView.getFileSystemView();
 
         File[] roots = fsv.getRoots();
-        for (int i = 0; i < roots.length; i++) {
-            root += roots[i].toString();
-        }
-        String[] lastOut=null;
+        root=roots[0].toString();
+        directory= root;
+        
+        Vector<String> lastOut=new Vector<String>();
         int lastCom=0;
         
         int flag=-1;
         
-        for(int i=0;i<args.length;++i) {
-        	if(args[i].equals(">>") || args[i].equals(">") || args[i].equals("|") ) {
+       if(args!=null)
+        for(int i=0;i<args.size();++i) {
+        	if(args.get(i).equals(">>") || args.get(i).equals(">") || args.get(i).equals("|") ) {
         		flag=i;
         		break;
         	}
         }
         
         if(flag!=-1) {
-	        String tmp[]=Arrays.copyOfRange(args, 0, flag-1);
-	        lastOut=command(cmd,tmp);
+        	if(flag !=0 ) {
+        		Vector<String> tmp=new Vector<String>();
+        		for(int i=0;i<flag;++i) tmp.add(args.get(i));
+    	        lastOut=command(cmd,tmp);
+        	}
+        	else {
+        		Vector<String> tmp = null;
+        		lastOut=command(cmd,tmp);
+        	}
         }
-        else lastOut=command(cmd,args);
-        
-        for(int i=0;i<args.length;++i) {
-        	if(args[i].equals(">") || args[i].equals(">>")) {
-        		if(i>args.length -2) {
-        			if(args[i+2].equals(">") || args[i+2].equals(">>")) {
-        				mkFile(args[i+1]);
-        			}
-        			else {
-        				mkFile(args[i+1]);
-        				writeToFile(lastOut,args[i+1],args[i].equals(">>"));
-        				lastOut=null;
-        			}
-        		}
+        else {
+        	if(args==null) {
+        		Vector<String> call =null;
+        		lastOut=command(cmd,call);
         	}
-        	else if(args[i].equals("|")) {
-        		if(lastCom!=0) 
-	        		lastOut=command(args[lastCom],lastOut);
-	        		
-        		else 
-        			lastOut=command(cmd,lastOut);
-        		
-        		lastCom=+1;
-        	}
+        	else lastOut=command(cmd,args);
         	
         }
         
-    }
+        
+        if(args!=null)
+	        for(int i=0;i<args.size();++i) {
+	        	if(args.get(i).equals(">") || args.get(i).equals(">>")) {
+	        		if(i<args.size() -3) {
+	        			if(args.get(i+2).equals(">") || args.get(i+2).equals(">>")) {
+	        				mkFile(args.get(i+1));
+	        			}
+	        			else {
+	        				mkFile(args.get(i+1));
+	        				String fileName=args.get(i+1);
+	        				File check= new File(fileName);
+	        				
+	        				if(!check.isDirectory()) {
+	        					fileName=pwd().get(0)+'\\'+fileName;
+	        				}
+	        				
+	        				if(lastOut != null) writeToFile(lastOut,fileName,args.get(i).equals(">>"));
+	        				lastOut=null;
+	        			}
+	        		}
+        			else {
+        				mkFile(args.get(i+1));
+        				String fileName=args.get(i+1);
+        				File check= new File(fileName);
+        				
+        				if(!check.isDirectory()) {
+        					fileName=pwd().get(0)+'\\'+fileName;
+        				}
+        				if(lastOut != null) writeToFile(lastOut,fileName,args.get(i).equals(">>"));
+        				lastOut=null;
+        			}
+	        	}
+	        	else if(args.get(i).equals("|")) {
+	        			lastOut=command(args.get(i+1),lastOut);
+	        			
+	        	}
+	        	
+	        }
+	        if(lastOut !=null) 
+	        	for(int i=0;i<lastOut.size();++i) System.out.println(lastOut.get(i).toString());
+	        
+	    }
+	    
+   
     
-    public String[] command(String com,String arg) {
+    public Vector<String> command(String com,Vector<String> arg) throws IOException {
+    	
+    	int argsLen = (arg==null)?0:arg.size();
+    	
+    	if(arg==null) {
+    		switch(com) {
+    		case "rm":
+    		case "mkdir":
+    		case "cat":
+    		case "rmdir":
+    			
+    		return null;
+    		}
+    	}
+    	if(argsLen==1 || arg==null)
+	    	switch (com) {	//multiple argument commands
+	    	case "cp":
+	    	case "mv":
+	    		
+	    	return null;
+	    	}
     	
     	
-    	return null;
+		
+    	switch(com) {
+    	case "rm":
+    		return rm(arg);
+    	case "mkdir":
+    		return mkdir(arg);
+    	case "cat":
+    		return cat(arg);
+    	case "rmdir":
+    		return rmdir(arg);
+    	case "pwd":
+    		return pwd();
+    	case "cd":
+    		return cd(arg);
+    	case  "date":
+    		return date(arg);
+    	case "help":
+    		help();
+        	return null;
+    	case "args":
+    		Args();
+        	return null;
+    	case "cls":
+    		cls();
+        	return null;
+    	case "ls":
+    		return ls(arg);
+    	case "cp":
+    		return cp(arg);
+    	case "mv":
+    		return mv(arg);
+    		
+    	}
+    return null;
     }
 
-    public String[] command(String com,String[] arg) {
-    	
-    	
-    	return null;
-    }
     
-    public String cp(String[] paths) throws IOException {   // cp stands for copy file channel faster than java stream
+    public Vector<String> cp(Vector<String> paths) throws IOException {   // cp stands for copy file channel faster than java stream
 
-    	if(paths.length>2) {
-    		File check = new File(paths[paths.length-1]);
+    	if(paths.size()>2) {
+    		File check = new File(paths.get(paths.size()-1));
     		if(!check.isDirectory()) return null;
     		else if(!check.exists()) {
-    			mkdir(paths[paths.length-1]);
+    			mkdir(paths.get(paths.size()-1));
     		}
     		
-    		for(int i=0;i<paths.length-1;++i) {
+    		for(int i=0;i<paths.size()-1;++i) {
     			String name="";
-				name=getFileName(paths[i]);
-				name = paths[paths.length-1]+name;
+				name=getFileName(paths.get(i));
+				name = paths.get(paths.size()-1)+'\\'+name;
     			
 				File make= new File(name);
 				make.createNewFile();
 				
-				FileChannel source = new FileInputStream(paths[i]).getChannel();
+				FileChannel source = new FileInputStream(paths.get(i)).getChannel();
 				FileChannel dest = new FileOutputStream(name).getChannel();
 				
 				dest.transferFrom(source, 0, source.size());
@@ -122,20 +208,23 @@ public class terminal {
     	}
     	
     	else {
-    		File file= new File(paths[0]);
+    		File check1 = new File(paths.get(0));
+    		if(!check1.isFile()) paths.set(1, pwd().get(0)+'\\'+paths.get(0));
+    		
+    		File file= new File(paths.get(0));
     		Scanner sc = new Scanner(file);
-    		File check = new File(paths[1]);
+    		File check = new File(paths.get(1));
     		
     		if(check.isDirectory()) {
-    			String newPath=paths[1]+getFileName(paths[0]);
+    			String newPath=paths.get(1)+'\\'+getFileName(paths.get(0));
     			mkFile(newPath);
-    			paths[1]=newPath;
+    			paths.set(1,newPath);	//set in vector
     		}
     		else if(!check.isFile()) { //check if not created
-    			mkFile(paths[1]);
+    			mkFile(paths.get(1));
     		}
     		
-    		BufferedWriter out= new BufferedWriter(new FileWriter(paths[1],false)); //true for append
+    		BufferedWriter out= new BufferedWriter(new FileWriter(paths.get(1),false)); //true for append
     		while(sc.hasNextLine()) {
     			String in = sc.nextLine();
     			out.write(in);
@@ -149,42 +238,63 @@ public class terminal {
 
     }
 
-    public String cd(String Dest) {   //cd stands for change directory
-        directory = Dest;
+    public Vector<String> cd(Vector<String> Dest) {   //cd stands for change directory
+        String val=Dest.get(0);
+        File check = new File(val);
+        if(check.isDirectory())
+        	directory = val;
+        
         return null;
     }
 
-    public String cd() {
+    public Vector<String> cd() {
         directory = root;
          return null;
     }
 
-    public String[] ls() {
-        File folders[] = new File(pwd()).listFiles();
-        String [] names=new String[folders.length];
-        
+    public Vector<String> ls(Vector<String> arg) {
+    	File folders[];
+    	Vector<String> tmp = pwd();
+    	if(arg!=null) {
+    		cd(arg);
+    	}
+    	
+        folders= new File(tmp.get(0)).listFiles();
+        Vector<String> names=new Vector<String>();
+    	
         for (int i=0;i<folders.length;++i) {
-        	names[i]=folders[i].toString();
+        	names.add(folders[i].toString());
         }
+        cd(tmp);
         return names;
     }
 
-    public String pwd() {
-        return directory;
-    }
 
-    public String mv(String paths[]) throws IOException {    //move source to dest
-    	cp(paths);
-    	for(int i=0;i<paths.length-1;++i) {
-    		rm(paths[i]);
+    public Vector<String> pwd() {
+    	Vector<String> tmp = new Vector<String>();
+    	tmp.add(directory);
+    	return tmp;
+    }
+    
+
+    public Vector<String> mv(Vector<String> paths) throws IOException {    //move source to dest
+    	for(int i=0;i<paths.size();++i) {
+    		File check=new File(paths.get(i));
+    		if(!check.isFile() && !check.isDirectory()) paths.set(i, pwd().get(0)+'\\'+paths.get(i));
     	}
+    	cp(paths);
+    	Vector<String> tmp = new Vector<String>();
+    	for(int i=0;i<paths.size()-1;++i) {
+    		tmp.add(paths.get(i));
+    	}
+    	rm(tmp);
         return null;
     }
 
-    public String mkdir(String[] args) {
-        int argsLen = args.length;
+    public Vector<String> mkdir(Vector<String> args) {
+        int argsLen = args.size();
         for (int i = 0; i < argsLen; ++i) {
-            File directory = new File(args[i]);
+            File directory = new File(args.get(i));
             if (!directory.exists()) {
                 if (!directory.mkdir()) {
                     System.out.println("A file name can not contain any of the following characters \n" + "\\ / : * < > |");
@@ -201,14 +311,20 @@ public class terminal {
         return null;
     }
 
-    public String mkFile(String path) throws IOException {
-    	File file = new File(path);
+
+    public Vector<String> mkFile(String path) throws IOException {
+    	File check = new File(path);
+    	if(!check.isDirectory()) {
+    		Vector<String> dir = pwd();
+	    	path=dir.get(0)+'\\'+path;
+    	}
+	    File file = new File(path);
     	if(!file.exists()) file.createNewFile();
     	
     	return null;
     }
     
-    public String mkdir(String args) {
+    public Vector<String> mkdir(String args) {
     	
             File directory = new File(args);
             if (!directory.exists()) {
@@ -225,10 +341,10 @@ public class terminal {
             return null;
     }
     
-    public String rmdir(String[] args) {
-        int argsLen = args.length;
+    public Vector<String> rmdir(Vector<String> args) {
+        int argsLen = args.size();
         for(int i= 0 ; i < argsLen ; ++i){
-            File Directory = new File(args[i]);
+            File Directory = new File(args.get(i));
             if (Directory.listFiles().length > 0)
                 System.out.println('\'' + Directory.getPath() + '\'' + " not empty");
             else
@@ -237,7 +353,8 @@ public class terminal {
         return null;
     }
 
-    public String rm(File[] args){
+  
+    public Vector<String> rm(File[] args){
         if (args == null) return null;
         int argsLen = args.length;
         for(int i = 0 ; i < argsLen ; ++i){
@@ -247,32 +364,48 @@ public class terminal {
         return null;
     }
     
-    public String rm(String source){
-    	if(source.equals(getFileName(source))) {
-    		source=pwd()+source;
-    	}
-    	
-    	if(source.charAt(0)=='*') {
-    		String compare=source.substring(1);
-    		String [] names=ls();
-    		for(int i=0;i<names.length;++i) {
-    			if(names[i].substring(names[i].length()-4,names[i].length()).equals(compare)) rm(names[i]);
-    		}
-    	}
-    	else if(source.charAt(source.length()-1)=='*') {
-    		String compare=source.substring(0,source.length()-1);
-    		String [] names=ls();
-    		for(int i=0;i<names.length;++i) {
-    			if(names[i].substring(0,names[i].length()-1).equals(compare)) rm(names[i]);
-    		}
+    public Vector<String> rm(Vector<String> data){
+    	for(int j=0;j<data.size();++j) {
     		
+    		String source=data.get(j);
+	    	if(source.equals(getFileName(source))) {
+	    		Vector<String> tmp=pwd();
+	    		source=tmp.get(0)+'\\'+source;
+	    	}
+	    	
+	    	if(source.charAt(0)=='*') {
+	    		String compare=source.substring(1);
+	    		Vector<String> names=ls(null);
+	    		for(int i=0;i<names.size();++i) {
+	    			String toRemove=names.get(i).substring(names.get(i).length()-4,names.get(i).length());
+	    			if(toRemove.equals(compare)) {
+	    				File need = new File(toRemove);
+	    				File[] tmp = new File[1];
+	    				tmp[0]=need;
+	    				rm(tmp);
+	    			}
+	    		}
+	    	}
+	    	else if(source.charAt(source.length()-1)=='*') {
+	    		String compare=source.substring(0,source.length()-1);
+	    		Vector<String> names=ls(null);
+	    		for(int i=0;i<names.size();++i) {
+	    			String toRemove=names.get(i).substring(0,names.get(i).length()-1);
+	    			if(toRemove.equals(compare)) {
+	    				File need = new File(toRemove);
+	    				File[] tmp = new File[1];
+	    				tmp[0]=need;
+	    				rm(tmp);
+	    			}
+	    		}
+	    		
+	    	}
+	    	
+	    	File args=new File(source);
+	        if (args == null) return null;
+	        if(args.isDirectory()) this.rm(args.listFiles());
+	        args.delete();
     	}
-    	
-    	File args=new File(source);
-        if (args == null) return null;
-        if(args.isDirectory()) this.rm(args.listFiles());
-        args.delete();
-   
         return null;
     }
     
@@ -280,16 +413,21 @@ public class terminal {
         System.exit(0);
     }
 
-	public String cls() {  
+
+	public Vector<String> cls() {  
 		for(int i=0;i<15;++i) System.out.println("");
 	    return null;
 	   }
 
-	public String date() {
-		return java.time.LocalDate.now().toString();
+	
+	public Vector<String> date() {
+		Vector<String>Date = new Vector<String>();
+		Date.add(java.time.LocalDate.now().toString());
+		return Date;
 	}
 	
-	public String date(String format) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
+	public Vector<String> date(Vector<String> shape) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
+		String format=shape.get(0);
 		Calendar cal = Calendar.getInstance(); 
 		int month=Integer.parseInt(format.substring(0,2));
 		int	day=Integer.parseInt(format.substring(2,4));
@@ -303,24 +441,38 @@ public class terminal {
 		return null;
 	}
 	
-	public String cat(String[] paths) throws FileNotFoundException {
+	
+	public Vector<String> cat(Vector<String> paths) throws FileNotFoundException {
 		InputStream is;
-		String text=null;
-		for(int i=0;i<paths.length;++i) {
-			is=new FileInputStream(paths[i]);
-			text+=is.toString();
+		Vector<String> text=new Vector<String>();
+		for(int i=0;i<paths.size();++i) {
+			
+			File check = new File(paths.get(i));
+			if(!check.isFile()) paths.set(i,pwd().get(0)+'\\'+paths.get(i));
+			File in = new File(paths.get(i));
+			
+			Scanner sc=new Scanner(in);
+			String data=null;
+			while(sc.hasNextLine()) {
+				data=sc.nextLine();
+				text.add(data);
+				System.out.println(data);
+			}
 		}
 		return text;
 	}
 
-	public void writeToFile(String[] input, String fileName,boolean state) throws IOException {
+
+	public void writeToFile(Vector<String> input, String fileName,boolean state) throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName,state));  //true for append
-	    
-	    for(String i:input)
+	    for(String i:input) {
 	    	writer.write(i);
+	    	writer.newLine();
+	    }
 		
 	    writer.close();
 	}
+	
 	
 	public String getFileName(String name) {
 		for(int i=name.length()-1;i>=0;--i) {
@@ -329,10 +481,44 @@ public class terminal {
 		return name;
 	}
 	
+	
+	public void Args() {
+		System.out.println("cd : new directory or no args");
+		System.out.println("ls : directory or no args");
+		System.out.println("cp : source , destination");
+		System.out.println("cat : file or more ");
+		System.out.println("mkdir : directory ");
+		System.out.println("rmdir : directory");
+		System.out.println("mv : source , destination");
+		System.out.println("rm : file or directory ");
+		System.out.println("date : date or no args");
+		System.out.println("pwd : no args");
+		System.out.println("clear : no args");
+		System.out.println("exit : no args");
+		
+	}
+	
+	public void help() {
+		System.out.println("cd : changes the current directory to another one. ");
+		System.out.println("ls :  list each given file or directory name. Directory contents are sorted alphabetically. For ls, files are by default listed in columns, sorted vertically, if the standard output is a terminal; otherwise, they are listed one per line.");
+		System.out.println("cp : cp copies each other given file into a file with the same name in that directory. Otherwise, if only two files are given, it copies the first onto the second. It is an error if the last argument is not a directory and more than two files are given. By default, it does not copy directories.");
+		System.out.println("cat : Concatenate files and print on the standard output.");
+		System.out.println("more : print the rest of content on the screen ");
+		System.out.println("mkdir : mkdir creates a directory with each given name. By default, the mode of created directories is 0777 minus the bits set in the umask.");
+		System.out.println("rmdir : rmdir removes each given empty directory. If any nonoption argument does not refer to an existing empty directory, it is an error.");
+		System.out.println("mv : If the last argument names an existing directory, mv moves each other given file into a file with the same name in that directory. Otherwise, if only two files are given, it moves the first onto the second. It is an error if the last argument is not a directory and more than two files are given. It can move only regular files across file systems. If a destination file is unwritable, the standard input is a tty, and the –f or --force option is not given, mv prompts the user for whether to overwrite the file. If the response does not begin with y or Y, the file is skipped.");
+		System.out.println("rm : rm removes each specified file. By default, it does not remove directories. If a file is unwritable, the standard input is a tty, and the -f or --force option is not given, rm prompts the user for whether to remove the file. If the response does not begin with y or Y, the file is skipped.");
+		System.out.println("args : List all command arguments");
+		System.out.println("date : To display or to set the date and time of the system. The format for setting date is [MMDDhhmm[[CC]YY][.ss]]");
+		System.out.println("pwd : Display current user directory.");
+		System.out.println("clear : This command can be called to clear the current terminal screen and it can be redirected to clear the screen of some other terminal.");
+		System.out.println("exit : stop all");
+	}
+	
 	public static void main(String [] args) throws IOException {
-		terminal t= new terminal();
-		String [] arg = {"F:\\tst2.txt","F:\\tst1.txt"};
-		t.cls();
+		terminal t= new terminal("mv E:\\tst2.txt E:\\Desktop\\tst1.txt");
+		
+		
 	}
 	
 }
