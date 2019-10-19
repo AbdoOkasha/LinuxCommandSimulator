@@ -33,7 +33,7 @@ public class terminal {
         String gar[] = p.getArguments();
         if(gar!=null) for(String i:gar) args.add(i);
         
-        System.out.println(cmd + " " + args);
+//        System.out.println(cmd + " " + args);
         
         
         
@@ -204,11 +204,12 @@ public class terminal {
     	
     	else {
     		File check1 = new File(paths.get(0));
-    		if(!check1.isFile()) paths.set(1, pwd().get(0)+'\\'+paths.get(0));
+    		if(!check1.isFile()) paths.set(0, pwd().get(0)+'\\'+paths.get(0));
     		
     		File file= new File(paths.get(0));
     		Scanner sc = new Scanner(file);
     		File check = new File(paths.get(1));
+    		
     		
     		if(check.isDirectory()) {
     			String newPath=paths.get(1)+'\\'+getFileName(paths.get(0));
@@ -216,7 +217,7 @@ public class terminal {
     			paths.set(1,newPath);	//set in vector
     		}
     		else if(!check.isFile()) { //check if not created
-    			mkFile(paths.get(1));
+    			check.createNewFile();
     		}
     		
     		BufferedWriter out= new BufferedWriter(new FileWriter(paths.get(1),false)); //true for append
@@ -329,9 +330,9 @@ public class terminal {
 
     public Vector<String> mkFile(String path) throws IOException {
     	File check = new File(path);
-    	if(!check.isDirectory()) {
-    		Vector<String> dir = pwd();
-	    	path=dir.get(0)+'\\'+path;
+    	if(!check.isFile()) {
+    		path=pwd().get(0)+'\\'+path;
+    		System.out.println(path);
     	}
 	    File file = new File(path);
     	if(!file.exists()) file.createNewFile();
@@ -534,7 +535,7 @@ public class terminal {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		terminal t= new terminal("mv a.txt b.txt");
+		terminal t= new terminal("ls | ls");
 		
 		
 

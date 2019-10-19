@@ -190,7 +190,12 @@ public class parser {
         	return numberOfArgsValid(operator, 0);
         }
         for (int i = 0; i < this.argsLen; ++i) {
-            counter++;
+        	for(int j=i;j<args.length;++j) {
+        		if(isOperator(args[j]) || isCommand(args[j])) break;
+        		counter++;
+        		System.out.println(j+" s");
+        	}
+//            counter++;
             if (isOperator(this.args[i]) || isCommand(this.args[i])) {
                 counter--;
                 if (i != 0 && !numberOfArgsValid(operator, counter)) {
@@ -201,6 +206,7 @@ public class parser {
                 counter = 0;
             } else if (i == (this.argsLen - 1)) {
                 if (!numberOfArgsValid(operator, counter)) {
+                	System.out.println(counter);
                     System.out.println("few argument for " + "\'" + operator + "\'");
                     return false;
                 }
