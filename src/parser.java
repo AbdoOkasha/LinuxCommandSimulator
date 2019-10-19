@@ -11,12 +11,13 @@ public class parser {
     }
 
     public boolean parse(String input) throws IOException {
+        System.out.println(input);
         input = this.reformat(input);
         input = input.trim().replaceAll(" +", " ");        //replace multiple spaces with only 1
         String[] temp = input.split(" ");
         int argsLen = temp.length - 1;
         this.cmd = temp[0];
-
+        System.out.println(cmd);
         this.args = (argsLen <= 0) ? null : new String[argsLen];
 
         for (int i = 0; i < argsLen; ++i) {
@@ -24,9 +25,11 @@ public class parser {
         }
 
         this.argsLen = argsLen - 1;
+        System.out.println(this.validateCommand());
         if (this.validateCommand() && this.checkNumberOfArgs())
             return true;
         else {
+            System.out.println(cmd);
             this.args = null;
             this.cmd = null;
             return false;
@@ -132,7 +135,7 @@ public class parser {
                     break;
                 case "mkdir":
                     if (isDirectory(this.args[i])) {
-                    	return false;
+                        return false;
                     }
                     break;
                 case "args":
@@ -186,16 +189,15 @@ public class parser {
         int counter = 0;
         boolean valid = true;
         String operator = this.cmd;
-        if(args==null) {
-        	return numberOfArgsValid(operator, 0);
+        if (args == null) {
+            return numberOfArgsValid(operator, 0);
         }
         for (int i = 0; i < this.argsLen; ++i) {
-        	for(int j=i;j<args.length;++j) {
-        		if(isOperator(args[j]) || isCommand(args[j])) break;
-        		counter++;
-        		System.out.println(j+" s");
-        	}
-//            counter++;
+            for (int j = i; j < args.length; ++j) {
+                if (isOperator(args[j]) || isCommand(args[j])) break;
+                counter++;
+            }
+            counter++;
             if (isOperator(this.args[i]) || isCommand(this.args[i])) {
                 counter--;
                 if (i != 0 && !numberOfArgsValid(operator, counter)) {
@@ -206,7 +208,6 @@ public class parser {
                 counter = 0;
             } else if (i == (this.argsLen - 1)) {
                 if (!numberOfArgsValid(operator, counter)) {
-                	System.out.println(counter);
                     System.out.println("few argument for " + "\'" + operator + "\'");
                     return false;
                 }
@@ -223,7 +224,7 @@ public class parser {
             case "rmdir":
                 return (counter <= Integer.MAX_VALUE && counter > 1);
             case "mv":
-            	System.out.println(counter);
+                //System.out.println(counter);
                 return (counter <= Integer.MAX_VALUE && counter > 1);
             case "rm":
                 return (counter <= Integer.MAX_VALUE && counter > 0);
@@ -279,27 +280,43 @@ public class parser {
 
     private boolean isFile(String filePath) throws IOException {
         boolean createFile = false;
-        int lastIndexOf = filePath.lastIndexOf(".");
+        System.out.println(filePath);
+        if(this.checkStarExtension(filePath))return true;
         String path = System.getProperty("user.dir") + filePath;
         File file = new File(filePath);
         if (file.isFile()) return true;
         else if (!file.exists()) {
-            createFile = file.createNewFile();
+            try {
+                createFile = file.createNewFile();
+            } catch (IOException I) {
+                return false;
+            }
             if (createFile) {
                 file.delete();
                 return true;
             }
         }
+        System.out.println(filePath);
         file = new File(path);
         if (file.isFile()) return true;
         else if (!file.exists()) {
-            createFile = file.createNewFile();
+            try {
+                createFile = file.createNewFile();
+            } catch (IOException I) {
+                return false;
+            }
             if (createFile) {
                 file.delete();
                 return true;
             }
-        } else if (lastIndexOf != -1)            //can't understand e.e
-            if (filePath.charAt(lastIndexOf - 1) == '*')
+        }
+        return false;
+    }
+
+    private boolean checkStarExtension(String filePath) {
+        int lastIndexOf = filePath.lastIndexOf(".");
+        if (lastIndexOf != -1)
+            if (filePath.charAt(lastIndexOf - 1) == '*' && this.isDirectory(filePath.substring(0, lastIndexOf - 1)))
                 return true;
         return false;
     }
@@ -314,10 +331,8 @@ public class parser {
         return false;
     }
 
-//    public static void main(String[] args) throws IOException {
-////        //System.out.println(System.getProperty("user.dir")); to get the current directory
-//        parser p = new parser();
-//        System.out.println(p.parse("cd C:\\Users"));
-////        System.out.println();
-//    }
+    public static void main(String[] args) throws IOException {
+        parser p = new parser();
+        System.out.println(p.parse("cd C:\\Users"));
+    }
 }
