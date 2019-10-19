@@ -33,7 +33,7 @@ public class terminal {
         String gar[] = p.getArguments();
         if(gar!=null) for(String i:gar) args.add(i);
         
-//        System.out.println(cmd);
+//        System.out.println(cmd + " " + args);
         
         /*
          * get the root name*/
@@ -522,8 +522,8 @@ public class terminal {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		terminal b = new terminal("cd C:\\Users");
-		terminal t= new terminal("ls");
+		terminal b = new terminal("cd E:\\Downloads");
+		terminal t= new terminal(" pwd | mkdir ");
 		
 		
 
@@ -534,6 +534,7 @@ public class terminal {
 	void teleport() throws IOException {
 		Vector<String> v = new Vector<String>();
 		
+		terminal();
 		cd();
 		cp(v);
 		mv(v);

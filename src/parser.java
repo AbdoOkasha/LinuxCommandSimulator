@@ -130,7 +130,9 @@ public class parser {
                     if (!isDirectory(this.args[i])) return false;
                     break;
                 case "mkdir":
-                    if (!isDirectory(this.args[i])) return false;
+                    if (isDirectory(this.args[i])) {
+                    	return false;
+                    }
                     break;
                 case "args":
                     if (!isCommand(this.args[i])) ;
