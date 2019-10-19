@@ -1,7 +1,3 @@
-import javax.swing.filechooser.FileSystemView;
-
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.Calendar;
 import java.util.Scanner;
@@ -33,7 +28,7 @@ public class terminal {
         String gar[] = p.getArguments();
         if(gar!=null) for(String i:gar) args.add(i);
         
-//        System.out.println(cmd + " " + args);
+        System.out.println(cmd + " " + args);
         
         
         
@@ -61,6 +56,7 @@ public class terminal {
         	}
         }
         
+         
         else {		// no operators found
         	if(args==null) {
         		Vector<String> call =null;
@@ -69,6 +65,7 @@ public class terminal {
         	else lastOut=command(cmd,args);
         	
         }
+        
         if(args!=null)
 	        for(int i=0;i<args.size();++i) {
 	        	if(args.get(i).equals(">") || args.get(i).equals(">>")) {
@@ -186,8 +183,10 @@ public class terminal {
     		
     		for(int i=0;i<paths.size()-1;++i) {
     			String name="";
-				name=getFileName(paths.get(i));
+    			
+				name=getFileName(paths.get(i));		//get file name only and append it to the directory
 				name = paths.get(paths.size()-1)+'\\'+name;
+			
     			
 				File make= new File(name);
 				make.createNewFile();
@@ -203,16 +202,14 @@ public class terminal {
     	}
     	
     	else {
-    		File check1 = new File(paths.get(0));
-    		if(!check1.isFile()) paths.set(0, pwd().get(0)+'\\'+paths.get(0));
     		
     		File file= new File(paths.get(0));
     		Scanner sc = new Scanner(file);
+    		System.out.println("jkegwkgnwkegjweng" + paths.get(0));
     		File check = new File(paths.get(1));
     		
-    		
     		if(check.isDirectory()) {
-    			String newPath=paths.get(1)+'\\'+getFileName(paths.get(0));
+    			String newPath=paths.get(1)+'\\'+getFile(paths.get(0));
     			mkFile(newPath);
     			paths.set(1,newPath);	//set in vector
     		}
@@ -220,9 +217,11 @@ public class terminal {
     			check.createNewFile();
     		}
     		
+    		System.out.println(paths.get(1));
     		BufferedWriter out= new BufferedWriter(new FileWriter(paths.get(1),false)); //true for append
     		while(sc.hasNextLine()) {
     			String in = sc.nextLine();
+    			System.out.println(in);
     			out.write(in);
     			out.newLine();
     		}
@@ -259,7 +258,7 @@ public class terminal {
     		newLoc.add("");
     		for(int i=0;i<arg.size();++i) {
     			newLoc.set(0, arg.get(i));
-    			names.add(newLoc.get(0));
+    			names.add("path -> "+newLoc.get(0));
     			cd(newLoc);
     			
 		    	String loc = pwd().get(0);
@@ -285,7 +284,6 @@ public class terminal {
         return names;
     }
 
-
     public Vector<String> pwd() {
     	Vector<String> tmp = new Vector<String>();
     	tmp.add(directory);
@@ -295,8 +293,7 @@ public class terminal {
 
     public Vector<String> mv(Vector<String> paths) throws IOException {    //move source to dest
     	for(int i=0;i<paths.size();++i) {
-    		File check=new File(paths.get(i));
-    		if(!check.isFile() && !check.isDirectory()) paths.set(i, pwd().get(0)+'\\'+paths.get(i));
+    		if(paths.get(i).lastIndexOf('\\') ==-1) paths.set(i, pwd().get(0)+'\\'+paths.get(i));
     	}
     	cp(paths);
     	Vector<String> tmp = new Vector<String>();
@@ -327,13 +324,7 @@ public class terminal {
         return null;
     }
 
-
     public Vector<String> mkFile(String path) throws IOException {
-    	File check = new File(path);
-    	if(!check.isFile()) {
-    		path=pwd().get(0)+'\\'+path;
-    		System.out.println(path);
-    	}
 	    File file = new File(path);
     	if(!file.exists()) file.createNewFile();
     	
@@ -369,7 +360,6 @@ public class terminal {
         return null;
     }
 
-  
     public Vector<String> rm(File[] args){
         if (args == null) return null;
         int argsLen = args.length;
@@ -384,42 +374,61 @@ public class terminal {
     	for(int j=0;j<data.size();++j) {
     		
     		String source=data.get(j);
-	    	if(source.equals(getFileName(source))) {
-	    		Vector<String> tmp=pwd();
-	    		source=tmp.get(0)+'\\'+source;
-	    	}
-	    	
-	    	if(source.charAt(0)=='*') {
-	    		String compare=source.substring(1);
-	    		Vector<String> names=ls(null);
-	    		for(int i=0;i<names.size();++i) {
-	    			String toRemove=names.get(i).substring(names.get(i).length()-4,names.get(i).length());
-	    			if(toRemove.equals(compare)) {
-	    				File need = new File(toRemove);
-	    				File[] tmp = new File[1];
-	    				tmp[0]=need;
-	    				rm(tmp);
-	    			}
-	    		}
-	    	}
-	    	else if(source.charAt(source.length()-1)=='*') {
-	    		String compare=source.substring(0,source.length()-1);
-	    		Vector<String> names=ls(null);
-	    		for(int i=0;i<names.size();++i) {
-	    			String toRemove=names.get(i).substring(0,names.get(i).length()-1);
-	    			if(toRemove.equals(compare)) {
-	    				File need = new File(toRemove);
-	    				File[] tmp = new File[1];
-	    				tmp[0]=need;
-	    				rm(tmp);
-	    			}
-	    		}
-	    		
-	    	}
-	    	
+    		int dot=source.lastIndexOf('.');
+    		int pathStartsAt = source.lastIndexOf('\\');
+    		if(source.charAt(dot+1)=='*') {
+    			
+				Vector<String> toRemove=new Vector<String>();
+    			
+    			if(pathStartsAt != -1) {	//directory 
+    				String compare=source.substring(pathStartsAt,dot);
+    				Vector<String> dir = new Vector<String>();
+    				dir.add(getFileDirectory(source));
+    				Vector<String> files=ls(dir);
+    				for(String i : files) {
+    					if(getFileName(i).equals(compare))
+    						toRemove.add(i);
+    				}
+    			}
+    			else {		//file
+    				String compare=source.substring(0,dot);
+    				Vector<String> files=ls(null);
+    				for(String i : files) {
+    					if(getFileName(i).equals(compare))
+    						toRemove.add(i);
+    				}
+    			}
+    			rm(toRemove);
+    		}
+    			
+    			
+    		else if(source.charAt(dot-1)=='*') {
+				Vector<String> toRemove=new Vector<String>();
+    			
+    			if(pathStartsAt != -1) {	//directory 
+    				String compare=source.substring(dot+1);
+    				Vector<String> dir = new Vector<String>();
+    				dir.add(getFileDirectory(source));
+    				Vector<String> files=ls(dir);
+    				for(String i : files) {
+    					if(getFileExtension(i).equals(compare))
+    						toRemove.add(i);
+    				}
+    			}
+    			else {		//file
+    				String compare=source.substring(dot+1);
+    				Vector<String> files=ls(null);
+    				for(String i : files) {
+    					if(getFileExtension(i).equals(compare))
+    						toRemove.add(i);
+    				}
+    			}
+    			rm(toRemove);
+    			
+    		}
+    		
 	    	File args=new File(source);
 	        if (args == null) return null;
-	        if(args.isDirectory()) this.rm(args.listFiles());
 	        args.delete();
     	}
         return null;
@@ -429,13 +438,11 @@ public class terminal {
         System.exit(0);
     }
 
-
 	public Vector<String> cls() {  
 		for(int i=0;i<15;++i) System.out.println("");
 	    return null;
 	   }
 
-	
 	public Vector<String> date() {
 		Vector<String>Date = new Vector<String>();
 		Date.add(java.time.LocalDate.now().toString());
@@ -459,7 +466,6 @@ public class terminal {
 		return null;
 	}
 	
-	
 	public Vector<String> cat(Vector<String> paths) throws FileNotFoundException {
 		Vector<String> text=new Vector<String>();
 		for(int i=0;i<paths.size();++i) {
@@ -481,7 +487,6 @@ public class terminal {
 		return text;
 	}
 
-
 	public void writeToFile(Vector<String> input, String fileName,boolean state) throws IOException {
 	    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName,state));  //true for append
 	    for(String i:input) {
@@ -492,14 +497,32 @@ public class terminal {
 	    writer.close();
 	}
 	
-	
 	public String getFileName(String name) {
+		int j=0;
+		for(int i=name.length()-1;i>=0;--i) {
+			if(name.charAt(i)=='.') j=i;
+			if(name.charAt(i)=='\\') return name.substring(i+1,j);
+		}
+		return name;
+	}
+	
+	public String getFile(String name) {
 		for(int i=name.length()-1;i>=0;--i) {
 			if(name.charAt(i)=='\\') return name.substring(i+1);
 		}
 		return name;
 	}
 	
+	public String getFileExtension(String name) {
+		for(int i=name.length()-1;i>=0;--i) {
+			if(name.charAt(i)=='.') return name.substring(i+1);
+		}
+		return name;
+	}
+	
+	public String getFileDirectory(String source) {
+		return source.substring(0,source.lastIndexOf('\\')-1);
+	}
 	
 	public void Args() {
 		System.out.println("cd : new directory or no args");
@@ -535,7 +558,9 @@ public class terminal {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		terminal t= new terminal("ls | ls");
+		terminal t= new terminal("rm tst2.*");
+//		File tst = new File("C:\\Users\\Abdo\\Documents\\GitHub\\LinuxCommandSimulator\\*.txt");
+//		if(tst.isFile()) System.out.println("file");
 		
 		
 
