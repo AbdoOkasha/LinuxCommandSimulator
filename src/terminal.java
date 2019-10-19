@@ -19,8 +19,8 @@ import java.util.Vector;
 public class terminal {
     private String cmd=null;
     private Vector<String> args=new Vector<String>();
-    private static String directory="E:\\Desktop";
-    private static String root="E:\\Desktop";
+    private static String root=System.getProperty("user.dir");
+    private static String directory=root;
 
     terminal (){
     	
@@ -35,13 +35,7 @@ public class terminal {
         
 //        System.out.println(cmd + " " + args);
         
-        /*
-         * get the root name*/
-//        FileSystemView fsv = FileSystemView.getFileSystemView();
-
-//        File[] roots = fsv.getRoots();
-//        root=roots[0].toString();
-//        directory= root;
+        
         
         Vector<String> lastOut=new Vector<String>();
         
@@ -74,8 +68,6 @@ public class terminal {
         	else lastOut=command(cmd,args);
         	
         }
-        
-        
         if(args!=null)
 	        for(int i=0;i<args.size();++i) {
 	        	if(args.get(i).equals(">") || args.get(i).equals(">>")) {
@@ -259,16 +251,25 @@ public class terminal {
     public Vector<String> ls(Vector<String> arg) {
     	File folders[];
     	Vector<String> tmp = pwd();
-    	if(arg!=null && arg.size()!=0) {
-    		cd(arg);
-    	}
-    	String loc = pwd().get(0);
-        folders= new File(loc).listFiles();
         Vector<String> names=new Vector<String>();
-    	
-        for (int i=0;i<folders.length;++i) {
-        	names.add(folders[i].toString());
-        }
+    	if(arg!=null && arg.size()!=0) {
+    		Vector<String>newLoc= new Vector<String>();
+    		newLoc.add("");
+    		for(int i=0;i<arg.size();++i) {
+    			newLoc.set(0, arg.get(i));
+    			names.add(newLoc.get(0));
+    			cd(newLoc);
+    			
+		    	String loc = pwd().get(0);
+		        folders= new File(loc).listFiles();
+		    	
+		        for (int j=0;j<folders.length;++j) {
+		        	names.add(folders[j].toString());
+		        }
+		        names.add("\n\n");
+    			
+    		}
+    	}
         cd(tmp);
         return names;
     }
@@ -453,7 +454,9 @@ public class terminal {
 		for(int i=0;i<paths.size();++i) {
 			
 			File check = new File(paths.get(i));
-			if(!check.isFile()) paths.set(i,pwd().get(0)+'\\'+paths.get(i));
+			if(!check.isFile()) {
+				paths.set(i,pwd().get(0)+'\\'+paths.get(i));
+			}
 			File in = new File(paths.get(i));
 			
 			Scanner sc=new Scanner(in);
@@ -461,7 +464,6 @@ public class terminal {
 			while(sc.hasNextLine()) {
 				data=sc.nextLine();
 				text.add(data);
-				System.out.println(data);
 			}
 			sc.close();
 		}
@@ -522,8 +524,8 @@ public class terminal {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		terminal b = new terminal("cd E:\\Downloads");
-		terminal t= new terminal(" pwd | mkdir ");
+		terminal t= new terminal("ls C:\\Users E:\\");
+		terminal b = new terminal("pwd");
 		
 		
 
@@ -534,7 +536,7 @@ public class terminal {
 	void teleport() throws IOException {
 		Vector<String> v = new Vector<String>();
 		
-		terminal();
+		terminal s= new terminal();
 		cd();
 		cp(v);
 		mv(v);
