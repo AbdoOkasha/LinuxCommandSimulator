@@ -19,8 +19,8 @@ import java.util.Vector;
 public class terminal {
     private String cmd=null;
     private Vector<String> args=new Vector<String>();
-    private String directory=null;
-    private String root=null;
+    private static String directory="E:\\Desktop";
+    private static String root="E:\\Desktop";
 
     terminal (){
     	
@@ -32,17 +32,18 @@ public class terminal {
         cmd = p.getCmd();
         String gar[] = p.getArguments();
         if(gar!=null) for(String i:gar) args.add(i);
-
+        
+//        System.out.println(cmd);
+        
         /*
          * get the root name*/
-        FileSystemView fsv = FileSystemView.getFileSystemView();
+//        FileSystemView fsv = FileSystemView.getFileSystemView();
 
-        File[] roots = fsv.getRoots();
-        root=roots[0].toString();
-        directory= root;
+//        File[] roots = fsv.getRoots();
+//        root=roots[0].toString();
+//        directory= root;
         
         Vector<String> lastOut=new Vector<String>();
-        int lastCom=0;
         
         int flag=-1;
         
@@ -124,7 +125,8 @@ public class terminal {
     	
     	int argsLen = (arg==null)?0:arg.size();
     	
-    	if(arg==null) {
+    	
+    	if(arg==null || arg.size()==0) {
     		switch(com) {
     		case "rm":
     		case "mkdir":
@@ -134,7 +136,7 @@ public class terminal {
     		return null;
     		}
     	}
-    	if(argsLen==1 || arg==null)
+    	if(argsLen==1 || arg==null || argsLen==0)
 	    	switch (com) {	//multiple argument commands
 	    	case "cp":
 	    	case "mv":
@@ -239,9 +241,11 @@ public class terminal {
     }
 
     public Vector<String> cd(Vector<String> Dest) {   //cd stands for change directory
-        String val=Dest.get(0);
+        if(Dest == null || Dest.size()==0)
+        	return cd();
+    	String val=Dest.get(0);
         File check = new File(val);
-        if(check.isDirectory())
+        if(check.isDirectory()) 
         	directory = val;
         
         return null;
@@ -255,11 +259,11 @@ public class terminal {
     public Vector<String> ls(Vector<String> arg) {
     	File folders[];
     	Vector<String> tmp = pwd();
-    	if(arg!=null) {
+    	if(arg!=null && arg.size()!=0) {
     		cd(arg);
     	}
-    	
-        folders= new File(tmp.get(0)).listFiles();
+    	String loc = pwd().get(0);
+        folders= new File(loc).listFiles();
         Vector<String> names=new Vector<String>();
     	
         for (int i=0;i<folders.length;++i) {
@@ -427,6 +431,8 @@ public class terminal {
 	}
 	
 	public Vector<String> date(Vector<String> shape) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
+		if(shape == null || shape.size()==0)
+			return date();
 		String format=shape.get(0);
 		Calendar cal = Calendar.getInstance(); 
 		int month=Integer.parseInt(format.substring(0,2));
@@ -443,7 +449,6 @@ public class terminal {
 	
 	
 	public Vector<String> cat(Vector<String> paths) throws FileNotFoundException {
-		InputStream is;
 		Vector<String> text=new Vector<String>();
 		for(int i=0;i<paths.size();++i) {
 			
@@ -458,6 +463,7 @@ public class terminal {
 				text.add(data);
 				System.out.println(data);
 			}
+			sc.close();
 		}
 		return text;
 	}
@@ -516,7 +522,34 @@ public class terminal {
 	}
 	
 	public static void main(String [] args) throws IOException {
-		terminal t= new terminal("mv E:\\tst2.txt E:\\Desktop\\tst1.txt");
+		terminal b = new terminal("cd C:\\Users");
+		terminal t= new terminal("ls");
+		
+		
+
+		
+		
+	}
+	
+	void teleport() throws IOException {
+		Vector<String> v = new Vector<String>();
+		
+		cd();
+		cp(v);
+		mv(v);
+		rm(v);
+		rmdir(v);
+		mkdir(v);
+		cd(v);
+		pwd();
+		cls();
+		Args();
+		date();
+		date(v);
+		exit();
+		cat(v);
+		ls(v);
+		command("asdas",v);
 		
 		
 	}

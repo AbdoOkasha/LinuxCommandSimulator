@@ -183,6 +183,9 @@ public class parser {
         int counter = 0;
         boolean valid = true;
         String operator = this.cmd;
+        if(args==null) {
+        	return numberOfArgsValid(operator, 0);
+        }
         for (int i = 0; i < this.argsLen; ++i) {
             counter++;
             if (isOperator(this.args[i]) || isCommand(this.args[i])) {
@@ -231,7 +234,7 @@ public class parser {
             case "help":
                 return counter == 0;
             case "pwd":
-                return (counter <= Integer.MAX_VALUE && counter > 1);
+                return (counter <= Integer.MAX_VALUE);
             case "clear":
                 return counter == 0;
             case "exit":
@@ -301,10 +304,10 @@ public class parser {
         return false;
     }
 
-    public static void main(String[] args) throws IOException {
-//        //System.out.println(System.getProperty("user.dir")); to get the current directory
-        parser p = new parser();
-        System.out.println(p.parse("cd C:\\Users"));
-//        System.out.println();
-    }
+//    public static void main(String[] args) throws IOException {
+////        //System.out.println(System.getProperty("user.dir")); to get the current directory
+//        parser p = new parser();
+//        System.out.println(p.parse("cd C:\\Users"));
+////        System.out.println();
+//    }
 }
