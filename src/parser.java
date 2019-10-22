@@ -238,7 +238,7 @@ public class parser {
             case "ls":
                 return (counter >= 0);
             case "more":
-                return counter == 0;
+                return counter == 1;
             case "help":
                 return counter == 0;
             case "pwd":
