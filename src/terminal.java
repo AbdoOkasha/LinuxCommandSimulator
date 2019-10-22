@@ -6,7 +6,12 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -16,13 +21,15 @@ public class terminal {
     private Vector<String> args = new Vector<String>();
     private static String root = System.getProperty("user.dir");
     private static String directory = root;
+    private static ZonedDateTime time = ZonedDateTime.now();
+    private static int year=time.getYear(),day=time.getDayOfMonth(),month=time.getMonthValue(),mn=time.getMinute(),sec=time.getSecond(),hour=time.getHour();
 
     terminal() {
 
     }
 
     public void excute(String command, String[] arguments) throws IOException {
-	args.clear();
+    	args.clear();
         this.cmd = command;
         String gar[] = arguments;
         if (gar != null) for (String i : gar) args.add(i);
@@ -190,8 +197,13 @@ public class terminal {
         } else {
 
             File file = new File(paths.get(0));
+            
+            if(!file.exists()) {
+            	System.out.println("file doesn't exist");
+            	return null;
+            }
             Scanner sc = new Scanner(file);
-            System.out.println("jkegwkgnwkegjweng" + paths.get(0));
+
             File check = new File(paths.get(1));
 
             if (check.isDirectory()) {
@@ -202,11 +214,11 @@ public class terminal {
                 check.createNewFile();
             }
 
-            System.out.println(paths.get(1));
+
             BufferedWriter out = new BufferedWriter(new FileWriter(paths.get(1), false)); //true for append
             while (sc.hasNextLine()) {
                 String in = sc.nextLine();
-                System.out.println(in);
+
                 out.write(in);
                 out.newLine();
             }
@@ -397,6 +409,10 @@ public class terminal {
             }
 
             File args = new File(source);
+            if(!args.exists()) {
+            	System.out.println("file doesn't exist ");
+            	continue;
+            }
             if (args == null) return null;
             args.delete();
         }
@@ -408,6 +424,11 @@ public class terminal {
         for (int i = 0; i < in.size(); ++i) {
             Vector<String> out = new Vector<String>();
             File file = new File(in.get(i));
+            if(!file.exists()) {
+            	System.out.println("file doesn't exist ");
+            	continue;
+            }
+            
             if (file.isFile()) {
                 Scanner sc = new Scanner(file);
                 while (sc.hasNextLine()) {
@@ -441,24 +462,34 @@ public class terminal {
     }
 
     private Vector<String> date() {
-        Vector<String> Date = new Vector<String>();
-        Date.add(java.time.LocalDate.now().toString());
-        return Date;
+    	DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");	
+    	System.out.println(day + "-" + month+"-" + year+" "+ hour+":"+ mn+":"+ sec);
+    	return null;
     }
 
     private Vector<String> date(Vector<String> shape) {//month,day,hour,mn,first 2 digits if the year,last 2,seconds
-        if (shape == null || shape.size() == 0)
+        if (shape == null || shape.size() == 0) {
             return date();
+        }
         String format = shape.get(0);
-        Calendar cal = Calendar.getInstance();
-        int month = Integer.parseInt(format.substring(0, 2));
-        int day = Integer.parseInt(format.substring(2, 4));
-        int hour = Integer.parseInt(format.substring(4, 6));
-        int mn = Integer.parseInt(format.substring(6, 8));
-        int year = Integer.parseInt(format.substring(8, 12));
-        int sec = Integer.parseInt(format.substring(12, 14));
-
-        cal.set(year, month, day, hour, mn, sec);
+        if(format.length() != 14) {
+        	System.out.println("wrong time format ");
+        	return null;
+        }
+        for(int i=0;i<format.length();++i) {
+        	if((format.charAt(i)-'0')<0 || (format.charAt(i)-'0')>9) {
+        		System.out.println("wrong time format");
+        		return null;
+        	}
+        }
+        
+        month = Integer.parseInt(format.substring(0, 2));
+        day = Integer.parseInt(format.substring(2, 4));
+        hour = Integer.parseInt(format.substring(4, 6));
+        mn = Integer.parseInt(format.substring(6, 8));
+        year = Integer.parseInt(format.substring(8, 12));
+        sec = Integer.parseInt(format.substring(12, 14));
+        
 
         return null;
     }
@@ -470,6 +501,11 @@ public class terminal {
             File check = new File(paths.get(i));
             if (!check.isFile()) {
                 continue;
+            }
+
+            if(!check.exists()) {
+            	System.out.println("file doesn't exist");
+            	continue;
             }
             File in = new File(paths.get(i));
 
@@ -559,6 +595,9 @@ public class terminal {
             case "exit":
                 System.out.println("exit : no args");
                 return;
+            case "clear":
+            		System.out.println("no command");
+            	return;
         }
 
     }
