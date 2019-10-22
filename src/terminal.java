@@ -21,14 +21,12 @@ public class terminal {
     	
     }
     
-    terminal(String input) throws IOException {
-        parser p = new parser();
-        p.parse(input);
-        cmd = p.getCmd();
-        String gar[] = p.getArguments();
+    terminal(String input , String[] arguments) throws IOException {
+        cmd = input;
+        String gar[] = arguments;
         if(gar!=null) for(String i:gar) args.add(i);
         
-        System.out.println(cmd + " " + args);
+//        System.out.println(cmd + " " + args);
         
         
         
@@ -137,6 +135,11 @@ public class terminal {
     	
 		
     	switch(com) {
+    	case "exit":
+    		exit();
+    		return null;
+    	case "more":
+    		return more(arg);
     	case "rm":
     		return rm(arg);
     	case "mkdir":
@@ -154,8 +157,8 @@ public class terminal {
     	case "help":
     		help();
         	return null;
-    	case "args":
-    		Args();
+    	case "arg":
+    		Args(arg);
         	return null;
     	case "cls":
     		cls();
@@ -184,7 +187,7 @@ public class terminal {
     		for(int i=0;i<paths.size()-1;++i) {
     			String name="";
     			
-				name=getFileName(paths.get(i));		//get file name only and append it to the directory
+				name=getFile(paths.get(i));		//get file name only and append it to the directory
 				name = paths.get(paths.size()-1)+'\\'+name;
 			
     			
@@ -434,6 +437,34 @@ public class terminal {
         return null;
     }
     
+    public Vector<String> more(Vector<String> in) throws FileNotFoundException{
+    	Scanner again = new Scanner (System.in);
+    	for(int i=0;i<in.size();++i) {
+    		Vector<String> out = new Vector<String>();
+    		File file = new File(in.get(i));
+    		if(file.isFile()) {
+    			Scanner sc=new Scanner (file);
+    			while(sc.hasNextLine()) {
+    				String data = sc.nextLine();
+    				out.add(data);
+    			}
+    			System.out.println((in.get(i) + "\n"));
+    			for(int j=0,k=10;j<out.size();++j) {
+    				if(k==0) {
+    					System.out.println("enter more to continue or any other character to close ");
+    					String choise = again.nextLine();
+    					if(choise.equals("more")) k=10;
+    					else return null;
+    				}
+    				System.out.println(out.get(j));
+    				k--;
+    			}
+    		}
+    		
+    	}
+    	return null;
+    }
+    
     public void exit(){
         System.exit(0);
     }
@@ -472,7 +503,7 @@ public class terminal {
 			
 			File check = new File(paths.get(i));
 			if(!check.isFile()) {
-				paths.set(i,pwd().get(0)+'\\'+paths.get(i));
+				continue;
 			}
 			File in = new File(paths.get(i));
 			
@@ -524,19 +555,45 @@ public class terminal {
 		return source.substring(0,source.lastIndexOf('\\')-1);
 	}
 	
-	public void Args() {
-		System.out.println("cd : new directory or no args");
-		System.out.println("ls : directory or no args");
-		System.out.println("cp : source , destination");
-		System.out.println("cat : file or more ");
-		System.out.println("mkdir : directory ");
-		System.out.println("rmdir : directory");
-		System.out.println("mv : source , destination");
-		System.out.println("rm : file or directory ");
-		System.out.println("date : date or no args");
-		System.out.println("pwd : no args");
-		System.out.println("clear : no args");
-		System.out.println("exit : no args");
+	public void Args(Vector<String> in) {
+		switch(in.get(0)) {
+		case "cd":
+			System.out.println("cd : new directory or no args");
+			return ;
+		case"ls":	
+			System.out.println("ls : directory or no args");
+			return ;
+		case"cp":	
+			System.out.println("cp : source , destination");
+			return ;
+		case"cat":	
+			System.out.println("cat : file or more ");
+			return ;
+		case"mkdir":	
+			System.out.println("mkdir : directory ");
+			return ;
+		case"rmdir":
+			System.out.println("rmdir : directory");
+			return ;
+		case"mv":
+			System.out.println("mv : source , destination");
+			return ;
+		case"rm":
+			System.out.println("rm : file or directory ");
+			return ;
+		case"date":
+			System.out.println("date : date or no args");
+			return ;
+		case"pwd":
+			System.out.println("pwd : no args");
+			return ;
+		case"cls":
+			System.out.println("clear : no args");
+			return ;
+		case"exit":
+			System.out.println("exit : no args");
+			return ;
+		}
 		
 	}
 	
@@ -557,16 +614,17 @@ public class terminal {
 		System.out.println("exit : stop all");
 	}
 	
-	public static void main(String [] args) throws IOException {
-		terminal t= new terminal("rm tst2.*");
-//		File tst = new File("C:\\Users\\Abdo\\Documents\\GitHub\\LinuxCommandSimulator\\*.txt");
-//		if(tst.isFile()) System.out.println("file");
-		
-		
-
-		
-		
-	}
+//	public static void main(String [] args) throws IOException {
+//			terminal t= new terminal("ls C:\\Users\\Abdo\\Documents\\GitHub\\LinuxCommandSimulator\\tst | cat");
+//		
+////		File tst = new File("C:\\Users\\Abdo\\Documents\\GitHub\\LinuxCommandSimulator\\*.txt");
+////		if(tst.isFile()) System.out.println("file");
+//		
+//		
+//
+//		
+//		
+//	}
 	
 	void teleport() throws IOException {
 		Vector<String> v = new Vector<String>();
@@ -581,7 +639,7 @@ public class terminal {
 		cd(v);
 		pwd();
 		cls();
-		Args();
+		Args(v);
 		date();
 		date(v);
 		exit();
