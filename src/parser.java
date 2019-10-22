@@ -164,6 +164,7 @@ public class parser {
                     }
                 case "date":
                     //TODO else if (!isDatePattern(this.args[i])) return false;
+                    return true;
                 case "ls":
                     if (!isDirectory(this.args[i])) {
                         notDirectory(this.args[i]);
