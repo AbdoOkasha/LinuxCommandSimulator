@@ -144,7 +144,7 @@ public class terminal {
             case "arg":
                 Args(arg);
                 return null;
-            case "cls":
+            case "clear":
                 cls();
                 return null;
             case "ls":
