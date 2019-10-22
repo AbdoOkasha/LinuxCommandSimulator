@@ -104,45 +104,77 @@ public class parser {
             }
             switch (tempCmd) {
                 case "cat":
-                    if (!isFile(this.args[i])) return false;
+                    if (!isFile(this.args[i])) {
+                        notFile(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "rmdir":
-                    if (!isDirectory(this.args[i])) return false;
+                    if (!isDirectory(this.args[i])) {
+                        notDirectory(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "mv":
                     if (lastArgument) {
-                        if (!isFile(this.args[i]) && !isDirectory(this.args[i]))
+                        if (!isFile(this.args[i]) && !isDirectory(this.args[i])) {
+                            notFile(this.args[i]);
+                            notDirectory(this.args[i]);
                             return false;
-                    } else if (!isFile(this.args[i])) return false;
+                        }
+                    } else if (!isFile(this.args[i])) {
+                        notFile(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "rm":
-                    if (!isFile(this.args[i])) return false;
+                    if (!isFile(this.args[i])) {
+                        notFile(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "cp":
                     if (lastArgument) {
-                        if (!isFile(this.args[i])) {
-                            if (!isDirectory(this.args[i]))
-                                return false;
+                        if (!isFile(this.args[i]) && !isDirectory(this.args[i])) {
+                            notFile(this.args[i]);
+                            notDirectory(this.args[i]);
+                            return false;
                         }
-                    } else if (!isFile(this.args[i])) return false;
+                    } else if (!isFile(this.args[i])) {
+                        notFile(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "cd":
-                    if (!isDirectory(this.args[i])) return false;
+                    if (!isDirectory(this.args[i])) {
+                        notDirectory(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "mkdir":
-                    if (isDirectory(this.args[i])) {
+                    if (!isDirectory(this.args[i])) {
+                        notFile(this.args[i]);
                         return false;
                     }
                     break;
                 case "args":
-                    if (!isCommand(this.args[i])) ;
+                    if (!isCommand(this.args[i])) {
+                        System.out.println("\'" + this.args[i] + "\'" + " not a Command");
+                        return false;
+                    }
                 case "date":
                     //TODO else if (!isDatePattern(this.args[i])) return false;
                 case "ls":
-                    if (!isDirectory(this.args[i])) return false;
+                    if (!isDirectory(this.args[i])) {
+                        notDirectory(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "more":
-                    if (!isFile(this.args[i])) return false;
+                    if (!isFile(this.args[i])) {
+                        notFile(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "help":
                 case "pwd":
@@ -151,10 +183,16 @@ public class parser {
                     break;
                 case ">":
                 case ">>":
-                    if (!isFile(this.args[i])) return false;
+                    if (!isFile(this.args[i])) {
+                        notFile(this.args[i]);
+                        return false;
+                    }
                     break;
                 case "|":
-                    if (!isCommand(this.args[i])) return false;
+                    if (!isCommand(this.args[i])) {
+                        System.out.println("\'" + this.args[i] + "\'" + " not a Command");
+                        return false;
+                    }
             }
             lastArgument = false;
         }
@@ -238,7 +276,7 @@ public class parser {
             case "ls":
                 return (counter >= 0);
             case "more":
-                return counter == 1;
+                return counter == 0;
             case "help":
                 return counter == 0;
             case "pwd":
@@ -324,6 +362,14 @@ public class parser {
                 return true;
         }
         return false;
+    }
+
+    private void notFile(String file) {
+        System.out.println("\'" + file + "\'" + " not a file");
+    }
+
+    private void notDirectory(String dir) {
+        System.out.println("\'" + dir + "\'" + " not a file");
     }
 
     public static void main(String[] args) throws IOException {
