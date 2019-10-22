@@ -11,13 +11,11 @@ public class parser {
     }
 
     public boolean parse(String input) throws IOException {
-        System.out.println(input);
         input = this.reformat(input);
         input = input.trim().replaceAll(" +", " ");        //replace multiple spaces with only 1
         String[] temp = input.split(" ");
         int argsLen = temp.length - 1;
         this.cmd = temp[0];
-        System.out.println(cmd);
         this.args = (argsLen <= 0) ? null : new String[argsLen];
 
         for (int i = 0; i < argsLen; ++i) {
@@ -25,11 +23,9 @@ public class parser {
         }
 
         this.argsLen = argsLen - 1;
-        System.out.println(this.validateCommand());
         if (this.validateCommand() && this.checkNumberOfArgs())
             return true;
         else {
-            System.out.println(cmd);
             this.args = null;
             this.cmd = null;
             return false;
@@ -146,6 +142,8 @@ public class parser {
                     if (!isDirectory(this.args[i])) return false;
                     break;
                 case "more":
+                    if (!isFile(this.args[i])) return false;
+                    break;
                 case "help":
                 case "pwd":
                 case "clear":
@@ -224,7 +222,6 @@ public class parser {
             case "rmdir":
                 return (counter <= Integer.MAX_VALUE && counter > 1);
             case "mv":
-                //System.out.println(counter);
                 return (counter <= Integer.MAX_VALUE && counter > 1);
             case "rm":
                 return (counter <= Integer.MAX_VALUE && counter > 0);
@@ -278,10 +275,9 @@ public class parser {
         return false;
     }
 
-    private boolean isFile(String filePath) throws IOException {
+    private boolean isFile(String filePath) {
         boolean createFile = false;
-        System.out.println(filePath);
-        if(this.checkStarExtension(filePath))return true;
+        if (this.checkStarExtension(filePath)) return true;
         String path = System.getProperty("user.dir") + filePath;
         File file = new File(filePath);
         if (file.isFile()) return true;
@@ -296,7 +292,6 @@ public class parser {
                 return true;
             }
         }
-        System.out.println(filePath);
         file = new File(path);
         if (file.isFile()) return true;
         else if (!file.exists()) {
