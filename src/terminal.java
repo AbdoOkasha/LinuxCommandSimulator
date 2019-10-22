@@ -22,6 +22,7 @@ public class terminal {
     }
 
     public void excute(String command, String[] arguments) throws IOException {
+	args.clear();
         this.cmd = command;
         String gar[] = arguments;
         if (gar != null) for (String i : gar) args.add(i);
